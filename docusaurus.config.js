@@ -74,12 +74,25 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      docs: {
+        sidebar: {
+            hideable: true,
+            autoCollapseCategories: true,
+        },
+    },
+    announcementBar: {
+        id: 'announcementBar-2', // Increment on change
+        content: `⭐️ If you like, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/weihubeatse">GitHub</a> and follow me. This web site is updating!! </a>`,
+    },
+    tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 5,
+    },
       navbar: {
-        title: 'My Site',
+        title: '',
         logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+            alt: '',
+            src: 'img/logo.svg',
         },
         items: [
           {
@@ -88,9 +101,24 @@ const config = {
             position: 'left',
             label: 'Tutorial',
           },
+          {
+            label: 'MQ',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'RocketMQ',
+                to: '/docs/MQ/RocketMQ',
+                label: 'RocketMQ',
+            },
+            
+            ]
+            
+          },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/weihubeats',
             label: 'GitHub',
             position: 'right',
           },
@@ -134,7 +162,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/weihubeats',
               },
             ],
           },
