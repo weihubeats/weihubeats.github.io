@@ -112,10 +112,38 @@ const config = {
                 to: '/docs/MQ/RocketMQ',
                 label: 'RocketMQ',
             },
+            {
+              type: 'docSidebar',
+              sidebarId: 'Kafka',
+              to: '/docs/MQ/Kafka',
+              label: 'Kafka',
+          },
             
             ]
             
           },
+          {
+            label: 'Spring',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'springboot',
+                to: '/docs/spring/spring-boot',
+                label: 'Spring Boot',
+            },
+            {
+              type: 'docSidebar',
+              sidebarId: 'springcloudgateway',
+              to: '/docs/spring/spring-cloud/spring-cloud-gateway',
+              label: 'Spring Cloud Gateway',
+          },
+            
+            ]
+            
+          },
+
           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/weihubeats',
