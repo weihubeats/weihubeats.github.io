@@ -123,21 +123,21 @@ const config = {
             
           },
           {
-            label: 'Spring',
+            label: 'Java',
             type: 'dropdown',
             position: 'left',
             items: [
               {
                 type: 'docSidebar',
                 sidebarId: 'springboot',
-                to: '/docs/spring/spring-boot',
+                to: '/docs/java/spring-boot',
                 label: 'Spring Boot',
             },
             {
               type: 'docSidebar',
-              sidebarId: 'springcloudgateway',
-              to: '/docs/spring/spring-cloud/spring-cloud-gateway',
-              label: 'Spring Cloud Gateway',
+              sidebarId: 'springcloud',
+              to: '/docs/java/spring-cloud',
+              label: 'Spring Cloud',
           },
             
             ]
