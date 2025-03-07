@@ -4,7 +4,7 @@
 // There are various equivalent ways to declare your Docusaurus config.
 // See: https://docusaurus.io/docs/api/docusaurus-config
 
-import {themes as prismThemes} from 'prism-react-renderer';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -76,23 +76,23 @@ const config = {
       // Replace with your project's social card
       docs: {
         sidebar: {
-            hideable: true,
-            autoCollapseCategories: true,
+          hideable: true,
+          autoCollapseCategories: true,
         },
-    },
-    announcementBar: {
+      },
+      announcementBar: {
         id: 'announcementBar-2', // Increment on change
         content: `⭐️ If you like, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/weihubeatse">GitHub</a> and follow me. This web site is updating!! </a>`,
-    },
-    tableOfContents: {
+      },
+      tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 5,
-    },
+      },
       navbar: {
         title: '',
         logo: {
-            alt: '',
-            src: 'img/logo.svg',
+          alt: '',
+          src: 'img/logo.svg',
         },
         items: [
           {
@@ -111,16 +111,16 @@ const config = {
                 sidebarId: 'RocketMQ',
                 to: '/docs/MQ/RocketMQ',
                 label: 'RocketMQ',
-            },
-            {
-              type: 'docSidebar',
-              sidebarId: 'Kafka',
-              to: '/docs/MQ/Kafka',
-              label: 'Kafka',
-          },
-            
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'Kafka',
+                to: '/docs/MQ/Kafka',
+                label: 'Kafka',
+              },
+
             ]
-            
+
           },
           {
             label: 'Java',
@@ -132,19 +132,64 @@ const config = {
                 sidebarId: 'springboot',
                 to: '/docs/java/spring-boot',
                 label: 'Spring Boot',
-            },
-            {
-              type: 'docSidebar',
-              sidebarId: 'springcloud',
-              to: '/docs/java/spring-cloud',
-              label: 'Spring Cloud',
-          },
-            
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'springcloud',
+                to: '/docs/java/spring-cloud',
+                label: 'Spring Cloud',
+              },
+
             ]
-            
+
+          },
+          {
+            label: '我的开源项目',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                href: 'https://github.com/weihubeats/event-bus-rocketmq-all',
+                label: 'event-bus-rocketmq-all',
+                target: '_blank',
+                rel: null,
+              },
+              {
+                href: 'https://github.com/weihubeats/spring-boot-nebula',
+                label: 'spring-boot-nebula',
+                target: '_blank',
+                rel: null,
+              },
+              {
+                href: 'https://github.com/weihubeats/fluxcache',
+                label: 'fluxcache',
+                target: '_blank',
+                rel: null,
+              },
+              {
+                href: 'https://github.com/weihubeats/ddd-example',
+                label: 'ddd-example',
+                target: '_blank',
+                rel: null,
+              },
+              {
+                href: 'https://github.com/weihubeats/Asuna',
+                label: 'Asuna',
+                target: '_blank',
+                rel: null,
+              },
+              {
+                href: 'https://github.com/weihubeats/mq-idempotent',
+                label: 'mq-idempotent',
+                target: '_blank',
+                rel: null,
+              },
+
+            ]
+
           },
 
-          {to: '/blog', label: 'Blog', position: 'left'},
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/weihubeats',
             label: 'GitHub',
