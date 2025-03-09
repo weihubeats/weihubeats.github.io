@@ -63,7 +63,7 @@
 
 ### deleteExpiredFiles
 
-![alt text](images/deleteExpiredFiles.png)
+![alt text](../images/deleteExpiredFiles.png)
 
 ```java
         private void deleteExpiredFiles() {

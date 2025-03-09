@@ -5,7 +5,7 @@
 所以我打算结合源码告诉他`RocketMQ`自带的消息压缩
 
 同时听了发出了这个表情包
-![alt text](images/duola.png)
+![alt text](../images/duola.png)
 
 ## RocketMQ版本
 
@@ -47,7 +47,7 @@
 
 在消息发送`org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl.sendKernelImpl`方法中会对消息进行压缩判断
 
-![alt text](images/sendKernelImpl-code.png)
+![alt text](../images/sendKernelImpl-code.png)
 
 ### tryToCompressMessage 消息压缩
 
@@ -115,12 +115,12 @@ private int compressLevel = Integer.parseInt(System.getProperty(MixAll.MESSAGE_C
 
 在`client`拉取到消息成功后对`PullResult`对象进行处理执行`decodesBatch`方法
 
-![alt text](images/decodesBatch-code.png)
+![alt text](../images/decodesBatch-code.png)
 
 消息解析`decodesBatch`方法会调用`org.apache.rocketmq.common.message.MessageDecoder.decode(java.nio.ByteBuffer, boolean, boolean, boolean, boolean, boolean)`方法
 
 `decode`方法会对消息进行解压
-![alt text](images/decode-code.png)
+![alt text](../images/decode-code.png)
 
 ## 总结
 
