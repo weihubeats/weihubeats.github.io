@@ -74,6 +74,27 @@ Spring Framework 6 和 Spring Boot 3.0 对字节码解析和参数名称发现�
 
 所以使用`LocalVariableTableParameterNameDiscoverer`的地方需要替换成`DefaultParameterNameDiscoverer`
 
+同时`maven-compiler-plugin`插件添加`parameters`编译添加参数
+```xml
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+```
+> maven-compiler-plugin版本不能太低
+
+参考[为什么spring boot 3参数名称解析要废弃LocalVariableTableParameterNameDiscoverer](<为什么spring boot 3参数名称解析要废弃LocalVariableTableParameterNameDiscoverer.md>)
+
 ### java.lang.NoClassDefFoundError: com/google/gson/Strictness
 
 遇到这个问题手动添加`gson`依赖即可解决问题，这个问题是使用`spring boot` 3.6.0遇到的问题
@@ -193,6 +214,25 @@ com.nebula.web.boot.config.BaseWebMvcConfig
             <scope>import</scope>
         </dependency>
 ```
+
+### Unable to make field private com.sun.tools.javac.processing
+
+```java
+Unable to make field private com.sun.tools.javac.processing.JavacProcessingEnvironment$DiscoveredProcessors com.sun.tools.javac.processing.JavacProcessingEnvironment.discoveredProcs accessible: module jdk.compiler does not "opens com.sun.tools.javac.processing" to unnamed module @6de7c6bd
+```
+
+1. 检查项目编译版本
+
+```xml
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+```
+
+看是否有指定jdk编译版本
+
+2. 检查lombok版本，看是否过低，升级lombok版本
 
 
 ## 总结
