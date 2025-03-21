@@ -139,6 +139,12 @@ const config = {
                 to: '/docs/java/spring-cloud',
                 label: 'Spring Cloud',
               },
+              {
+                type: 'docSidebar',
+                sidebarId: 'idea',
+                to: '/docs/java/idea',
+                label: 'idea',
+              },
 
             ]
 
