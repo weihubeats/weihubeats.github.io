@@ -190,6 +190,12 @@ const config = {
                 target: '_blank',
                 rel: null,
               },
+              {
+                href: 'https://github.com/weihubeats/mybatis-plus-generator',
+                label: 'mybatis-plus-generator',
+                target: '_blank',
+                rel: null,
+              },
 
             ]
 
