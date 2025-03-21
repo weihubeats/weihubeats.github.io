@@ -150,6 +150,36 @@ const config = {
 
           },
           {
+            label: 'APM',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'skywalking',
+                to: '/docs/apm/skywalking',
+                label: 'skywalking',
+              },
+
+            ]
+
+          },
+          {
+            label: '云原生',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'Kubernetes',
+                to: '/docs/Kubernetes',
+                label: 'Kubernetes',
+              },
+
+            ]
+
+          },
+          {
             label: '我的开源项目',
             type: 'dropdown',
             position: 'left',
