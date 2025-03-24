@@ -145,6 +145,12 @@ const config = {
                 to: '/docs/java/idea',
                 label: 'idea',
               },
+              {
+                type: 'docSidebar',
+                sidebarId: 'maven',
+                to: '/docs/java/maven',
+                label: 'maven',
+              },
 
             ]
 
