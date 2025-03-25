@@ -178,8 +178,14 @@ const config = {
               {
                 type: 'docSidebar',
                 sidebarId: 'Kubernetes',
-                to: '/docs/Kubernetes',
+                to: '/docs/云原生/Kubernetes',
                 label: 'Kubernetes',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'APISIX',
+                to: '/docs/云原生/APISIX',
+                label: 'APISIX',
               },
 
             ]
