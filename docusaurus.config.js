@@ -192,6 +192,12 @@ const config = {
 
           },
           {
+            type: 'docSidebar',
+            sidebarId: 'AI',
+            position: 'left',
+            label: 'AI',
+          },
+          {
             label: '我的开源项目',
             type: 'dropdown',
             position: 'left',
