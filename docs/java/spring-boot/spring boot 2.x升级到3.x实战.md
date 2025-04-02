@@ -198,6 +198,22 @@ com.nebula.web.boot.error.NebulaRestExceptionHandler
 com.nebula.web.boot.config.BaseWebMvcConfig
 ```
 
+### jasypt-spring-boot-starter 升级
+
+如果使用低版本的`jasypt-spring-boot-starter`进行加解密，直接升级到最新版本可能会报错。
+
+最简单的升级方式是直接手动导入`JasyptSpringBootAutoConfiguration`类进行自动装配，即
+
+```java
+@Import({JasyptSpringBootAutoConfiguration.class})
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
 ### spring cloud 版本升级适配
 如果使用了`spring cloud`,`spring cloud`相关版本也要进行升级适配`spring boot`版本，这里给一个官方推荐的版本
 

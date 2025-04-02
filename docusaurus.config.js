@@ -198,6 +198,12 @@ const config = {
             label: 'AI',
           },
           {
+            type: 'docSidebar',
+            sidebarId: '分布式系统',
+            position: 'left',
+            label: '分布式系统',
+          },
+          {
             label: '我的开源项目',
             type: 'dropdown',
             position: 'left',
