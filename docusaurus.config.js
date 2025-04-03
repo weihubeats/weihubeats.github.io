@@ -82,7 +82,7 @@ const config = {
       },
       announcementBar: {
         id: 'announcementBar-2', // Increment on change
-        content: `⭐️ If you like, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/weihubeatse">GitHub</a> and follow me. This web site is updating!! </a>`,
+        content: `⭐️ If you like, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/weihubeats">GitHub</a> and follow me. This web site is updating!! </a>`,
       },
       tableOfContents: {
         minHeadingLevel: 2,
@@ -196,6 +196,12 @@ const config = {
             sidebarId: 'AI',
             position: 'left',
             label: 'AI',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: '数据结构与算法',
+            position: 'left',
+            label: '数据结构与算法',
           },
           {
             type: 'docSidebar',

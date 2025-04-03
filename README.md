@@ -1,5 +1,10 @@
 ## weihubeats 博客源码
 
+## 运行
+
+```shell
+npm run start
+```
 
 ## 地址
 
