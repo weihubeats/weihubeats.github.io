@@ -141,6 +141,12 @@ const config = {
               },
               {
                 type: 'docSidebar',
+                sidebarId: 'netty',
+                to: '/docs/java/netty',
+                label: 'Netty',
+              },
+              {
+                type: 'docSidebar',
                 sidebarId: 'idea',
                 to: '/docs/java/idea',
                 label: 'idea',
