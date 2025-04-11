@@ -217,7 +217,7 @@ public class Application {
 ### spring cloud 版本升级适配
 如果使用了`spring cloud`,`spring cloud`相关版本也要进行升级适配`spring boot`版本，这里给一个官方推荐的版本
 
-![spring-cloud-dependencies.png](./images/spring-cloud-dependencies.png)
+![spring-cloud-dependencies.png](../images/spring-cloud-dependencies.png)
 
 我这里直接升级到`spring cloud` 2024.0.0版本
 
