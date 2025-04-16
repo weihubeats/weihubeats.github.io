@@ -193,6 +193,12 @@ const config = {
                 to: '/docs/云原生/APISIX',
                 label: 'APISIX',
               },
+              {
+                type: 'docSidebar',
+                sidebarId: 'ServiceMesh',
+                to: 'docs/云原生/Service-Mesh',
+                label: 'Service Mesh',
+              },
 
             ]
 
