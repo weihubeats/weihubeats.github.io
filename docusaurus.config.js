@@ -157,6 +157,12 @@ const config = {
                 to: '/docs/java/maven',
                 label: 'maven',
               },
+              {
+                type: 'docSidebar',
+                sidebarId: '性能优化',
+                to: '/docs/java/性能优化',
+                label: '性能优化',
+              },
 
             ]
 
