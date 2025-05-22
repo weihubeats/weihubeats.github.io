@@ -540,6 +540,13 @@ public class ModeBenchmark {
 
 - `testThroughput` 使用 `Mode.Throughput`，结果单位是 ops/s (操作/秒)。得分越高越好
 
+## 可视化
+
+如果想要生成图形界面的结果，仅需将运行结果的json导入网站中
+
+- [JMH Visual Chart](http://deepoove.com/jmh-visual-chart/)
+- [JMH Visualizer](https://jmh.morethan.io/)
+
 ## 总结
 
 JMH 是一个强大而专业的微基准测试工具，它能够帮助我们克服`JVM`优化带来的挑战，获取更准确的代码性能数据。
