@@ -4,7 +4,7 @@
         <title>weihubeats Blog</title>
         <link>https://weihubeats.github.io/blog</link>
         <description>weihubeats Blog</description>
-        <lastBuildDate>Thu, 22 May 2025 01:49:48 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 28 May 2025 11:54:38 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>zh-Hans</language>
@@ -12,7 +12,7 @@
             <title><![CDATA[test]]></title>
             <link>https://weihubeats.github.io/blog/test</link>
             <guid>https://weihubeats.github.io/blog/test</guid>
-            <pubDate>Thu, 22 May 2025 01:49:48 GMT</pubDate>
+            <pubDate>Wed, 28 May 2025 11:54:38 GMT</pubDate>
             <description><![CDATA[weihubeats test]]></description>
             <content:encoded><![CDATA[<p>weihubeats test</p>]]></content:encoded>
         </item>
