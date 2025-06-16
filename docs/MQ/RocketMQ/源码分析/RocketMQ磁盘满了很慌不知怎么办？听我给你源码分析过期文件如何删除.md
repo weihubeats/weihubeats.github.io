@@ -12,6 +12,12 @@
 *   consumequeue
 *   index
 
+## 核心配置
+
+- diskMaxUsedSpaceRatio 磁盘最大使用空间比 默认 75% commitlog目录所在分区的最大使用比例，如果commitlog目录所在的分区使用比例大于该值，则触发过期文件删除
+- diskSpaceCleanForciblyRatio 磁盘空间强制清洁率 默认85%
+- diskSpaceWarningLevelRatio 磁盘空间警告级别比率 默认90%，超过90%标记broker为不可写，不再接受消息发送
+
 ## 源码入口
 
 `org.apache.rocketmq.store.DefaultMessageStore#addScheduleTask`
