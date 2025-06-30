@@ -209,6 +209,21 @@ const config = {
             ]
 
           },
+                    {
+            label: 'DevOps',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'CICD',
+                to: '/docs/devops/cicd',
+                label: 'CI/CD',
+              }
+
+            ]
+
+          },
           {
             type: 'docSidebar',
             sidebarId: 'AI',
