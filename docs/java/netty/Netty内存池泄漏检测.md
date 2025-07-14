@@ -1,11 +1,178 @@
 
-## 背景
+## 为什么Netty会存在内存泄漏
 
-`Netty`借鉴jem实现了自己的内存池管理
 
-如果内存池化在使用过程中不归还就会导致内存泄漏
+在Java里面普通变成我们都是让JVM自动取垃圾回收(GC)，但是一旦用了`Netty`
 
-`Netty`为了方便用户排查内存泄漏问题，提供了泄漏检查机制
+为什么内存泄漏就成了我们需要重点关注的问题？
+
+Netty 为了追求极致性能而采用的**堆外内存（Direct Memory）和内存池（Memory Pool）**技术
+
+JVM 的堆内存是一个自动化管理的仓库，有垃圾回收员（GC）定期清理。
+
+而 Netty 的内存池则像一个高性能的自助式仓库，你需要自己去前台（Allocator）借用一个储物柜（ByteBuf），用完后必须亲自归还钥匙（调用 `release()` 方法）。
+
+如果你只借不还，储物柜就会被一直占用，最终导致整个仓库没有可用的储物柜。
+
+这就是 `Netty` 中的内存泄漏——忘记释放通过内存池申请的`ByteBuf`。
+
+
+## 内存泄漏检测核心实现
+
+为了帮助开发者快速定位这些“有借无还”的`ByteBuf`，Netty 提供了一个强大的内置工具——`ResourceLeakDetector`（资源泄漏检测器）
+
+`ResourceLeakDetector`的核心原理就是通过`PhantomReference` (虚引用)实现的
+
+1. 当一个被池化的`ByteBuf` 被创建时，`ResourceLeakDetector` 会为它创建一个对应的“哨兵”——`PhantomReference`（虚引用），并将这个“哨兵”注册到一个监控队列（ReferenceQueue）中
+
+比如我们通过`PooledByteBufAllocator`创建`ByteBuf`对象的时候都会调用`toLeakAwareBuffer`方法，将`AbstractByteBuf`进行包装
+
+```java
+    @Override
+    protected ByteBuf newHeapBuffer(int initialCapacity, int maxCapacity) {
+        PoolThreadCache cache = threadCache.get();
+        PoolArena<byte[]> heapArena = cache.heapArena;
+
+        final AbstractByteBuf buf;
+        if (heapArena != null) {
+            buf = heapArena.allocate(cache, initialCapacity, maxCapacity);
+        } else {
+            buf = PlatformDependent.hasUnsafe() ?
+                    new UnpooledUnsafeHeapByteBuf(this, initialCapacity, maxCapacity) :
+                    new UnpooledHeapByteBuf(this, initialCapacity, maxCapacity);
+            onAllocateBuffer(buf, false, false);
+        }
+        return toLeakAwareBuffer(buf);
+    }
+
+    @Override
+    protected ByteBuf newDirectBuffer(int initialCapacity, int maxCapacity) {
+        PoolThreadCache cache = threadCache.get();
+        PoolArena<ByteBuffer> directArena = cache.directArena;
+
+        final AbstractByteBuf buf;
+        if (directArena != null) {
+            buf = directArena.allocate(cache, initialCapacity, maxCapacity);
+        } else {
+            buf = PlatformDependent.hasUnsafe() ?
+                    UnsafeByteBufUtil.newUnsafeDirectByteBuf(this, initialCapacity, maxCapacity) :
+                    new UnpooledDirectByteBuf(this, initialCapacity, maxCapacity);
+            onAllocateBuffer(buf, false, false);
+        }
+        return toLeakAwareBuffer(buf);
+    }
+
+```
+
+而`toLeakAwareBuffer(buf)`方法实际就是`ResourceLeakDetector.track(T obj)`方法。
+
+`track(T obj)`方法会对`buf`进行再次包装
+
+```java
+    protected static ByteBuf toLeakAwareBuffer(ByteBuf buf) {
+        ResourceLeakTracker<ByteBuf> leak;
+        switch (ResourceLeakDetector.getLevel()) {
+            case SIMPLE:
+                leak = AbstractByteBuf.leakDetector.track(buf);
+                if (leak != null) {
+                    buf = new SimpleLeakAwareByteBuf(buf, leak);
+                }
+                break;
+            case ADVANCED:
+            case PARANOID:
+                leak = AbstractByteBuf.leakDetector.track(buf);
+                if (leak != null) {
+                    buf = new AdvancedLeakAwareByteBuf(buf, leak);
+                }
+                break;
+            default:
+                break;
+        }
+        return buf;
+    }
+```
+
+最后根据不同的采样率返回的可能是`SimpleLeakAwareByteBuf`或者`AdvancedLeakAwareByteBuf`
+
+`AdvancedLeakAwareByteBuf`对象是继承`SimpleLeakAwareByteBuf`的
+
+而`SimpleLeakAwareByteBuf`中有一个`leak`是ByteBuf 的弱引用
+
+```java
+class SimpleLeakAwareByteBuf extends WrappedByteBuf {
+   // 需要被探测的普通  ByteBuf
+   private final ByteBuf trackedByteBuf;
+   // ByteBuf 的弱引用 DefaultResourceLeak
+   final ResourceLeakTracker<ByteBuf> leak;
+
+   SimpleLeakAwareByteBuf(ByteBuf wrapped, ResourceLeakTracker<ByteBuf> leak) {
+        this(wrapped, wrapped, leak);
+    }
+
+   SimpleLeakAwareByteBuf(ByteBuf wrapped, ByteBuf trackedByteBuf, ResourceLeakTracker<ByteBuf> leak) {
+        super(wrapped);
+        this.trackedByteBuf = ObjectUtil.checkNotNull(trackedByteBuf, "trackedByteBuf");
+        this.leak = ObjectUtil.checkNotNull(leak, "leak");
+    }
+}
+```
+
+
+
+
+
+2. 这个 `ByteBuf` 对象本身如果在使用后没有被强引用（例如，方法执行完，局部变量消失），它就会被 JVM 的 GC 标记为可回收
+
+3. 当 GC 真正回收这个 `ByteBuf` 对象时，它的“哨兵”（`ResourceLeakTracker`）会被自动放入之前注册的`ReferenceQueue` 监控队列中
+
+```java
+private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
+```
+
+4. `ResourceLeakDetector` 有一个后台线程会检查`ReferenceQueue`这个队列。一旦发现队列里有“哨兵”出现，它就知道这个“哨兵”对应的 `ByteBuf` 对象已经被回收了
+
+```java
+    private void reportLeak() {
+        if (!needReport()) {
+            clearRefQueue();
+            return;
+        }
+
+        // Detect and report previous leaks.
+        for (;;) {
+            DefaultResourceLeak ref = (DefaultResourceLeak) refQueue.poll();
+            if (ref == null) {
+                break;
+            }
+
+            if (!ref.dispose()) {
+                continue;
+            }
+
+            String records = ref.getReportAndClearRecords();
+            if (reportedLeaks.add(records)) {
+                if (records.isEmpty()) {
+                    reportUntracedLeak(resourceType);
+                } else {
+                    reportTracedLeak(resourceType, records);
+                }
+
+                LeakListener listener = leakListener;
+                if (listener != null) {
+                    listener.onLeak(resourceType, records);
+                }
+            }
+        }
+    }
+```
+
+5. 此时，它会检查这个 `ByteBuf` 是否被正常 `release()` 过。如果答案是“否”，那么“人赃并获”——内存泄漏发生！ `ResourceLeakDetector` 就会立即打印出详细的泄漏报告
+
+
+`DefaultResourceLeak`(虚拟引用)+ `ReferenceQueue`(引用队列)是很常见的资源回收使用方式
+
+> `DefaultResourceLeak` 和 `PhantomReference`都是虚拟引用，但是有什么区别呢？
+> 感兴趣可以自己百度搜索
 
 
 ## 内存泄漏检测使用
@@ -31,6 +198,31 @@ Netty如果想要开启内存泄漏检测只需要使用如下代码
 -Dio.netty.leakDetection.level=paranoid
 ```
 
+> 这是最推荐的方式，因为它无需修改代码，可以灵活地在不同环境中开启或关闭
+
+## 频率
+
+内存泄漏的采样间隔是128.意味着大约每 128 个对象中会挑选 1 个进行监控。
+
+可以通过 JVM 参数 `-Dio.netty.leakDetection.samplingInterval` 来设置内存泄露探测的采样间隔
+
+```java
+public class ResourceLeakDetector<T> {
+
+  static final int SAMPLING_INTERVAL;
+
+  private static final String PROP_SAMPLING_INTERVAL = "io.netty.leakDetection.samplingInterval";
+
+  private static final int DEFAULT_SAMPLING_INTERVAL = 128;
+
+  SAMPLING_INTERVAL = SystemPropertyUtil.getInt(PROP_SAMPLING_INTERVAL, DEFAULT_SAMPLING_INTERVAL);
+}
+
+```
+
+>  PARANOID 级别则会无视这个间隔，对每一个对象都进行监控
+
+
 ## 内存泄漏检测等级
 
 主要是通过`ResourceLeakDetector.Level`这个枚举控制的
@@ -43,7 +235,12 @@ SIMPLE|仅报告是否发生了泄漏，不提供详细的创建和泄漏位置|
 ADVANCED|报告泄漏并提供资源创建时的堆栈跟踪信息|1%|小|默认设置，适合大多数生产环境
 PARANOID|报告泄漏并提供完整的堆栈跟踪信息|100%|显著|开发和测试环境，特别是在调试内存泄漏问题时
 
+
+
 ## 测试验证
+
+
+### 泄漏验证
 
 ```java
     public static final int _1MB = 1024 * 1024;
@@ -118,7 +315,7 @@ Created at:
 
 可以看到出现内存泄漏后打印了完整的堆栈信息
 
-
+### 正常验证
 
 如果我们正常释放`ByteBuf`，则不会打印内存泄漏log
 
@@ -138,3 +335,13 @@ Created at:
         TimeUnit.SECONDS.sleep(3);
     }
 ```
+
+## 总结
+
+`Netty`的内存检测机制需要手动通过参数`-Dio.netty.leakDetection.level=paranoid`开启设置检测等级
+
+内存泄漏检测必须等到ByteBuf 被 GC 之后，内存泄露才能探测的到
+
+## 参考
+
+- https://www.cnblogs.com/binlovetech/p/18531611
