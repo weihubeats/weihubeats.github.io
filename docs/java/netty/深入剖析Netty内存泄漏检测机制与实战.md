@@ -21,11 +21,13 @@ JVM 的堆内存是一个自动化管理的仓库，有垃圾回收员（GC）�
 
 为了帮助开发者快速定位这些“有借无还”的`ByteBuf`，Netty 提供了一个强大的内置工具——`ResourceLeakDetector`（资源泄漏检测器）
 
-`ResourceLeakDetector`的核心原理就是通过`PhantomReference` (虚引用)实现的
+`ResourceLeakDetector`的核心原理就是通过`DefaultResourceLeak` (弱引用)实现的
 
-1. 当一个被池化的`ByteBuf` 被创建时，`ResourceLeakDetector` 会为它创建一个对应的“哨兵”——`PhantomReference`（虚引用），并将这个“哨兵”注册到一个监控队列（ReferenceQueue）中
+### 创建ByteBuf并进行包装跟踪
 
-比如我们通过`PooledByteBufAllocator`创建`ByteBuf`对象的时候都会调用`toLeakAwareBuffer`方法，将`AbstractByteBuf`进行包装
+当一个被池化的`ByteBuf` 被创建时，`ResourceLeakDetector` 会为它创建一个对应的“哨兵”——`DefaultResourceLeak`（弱引用），并将这个“哨兵”注册到一个监控队列（ReferenceQueue）中
+
+比如我们通过`PooledByteBufAllocator`创建`ByteBuf`对象的时候都会调用`toLeakAwareBuffer`方法，将`AbstractByteBuf`进行包装`XXLeakAwareByteBuf`(`SimpleLeakAwareByteBuf`或`AdvancedLeakAwareByteBuf`)
 
 ```java
     @Override
@@ -64,9 +66,9 @@ JVM 的堆内存是一个自动化管理的仓库，有垃圾回收员（GC）�
 
 ```
 
-而`toLeakAwareBuffer(buf)`方法实际就是`ResourceLeakDetector.track(T obj)`方法。
+而`toLeakAwareBuffer(buf)`方法实际调用的就是`ResourceLeakDetector.track(T obj)`方法。
 
-`track(T obj)`方法会对`buf`进行再次包装
+对`buf`进行包装的逻辑实际在`track(T obj)`方法
 
 ```java
     protected static ByteBuf toLeakAwareBuffer(ByteBuf buf) {
@@ -92,11 +94,11 @@ JVM 的堆内存是一个自动化管理的仓库，有垃圾回收员（GC）�
     }
 ```
 
-最后根据不同的采样率返回的可能是`SimpleLeakAwareByteBuf`或者`AdvancedLeakAwareByteBuf`
+这里根据不同的采样率返回的可能是`SimpleLeakAwareByteBuf`或者`AdvancedLeakAwareByteBuf`
 
 `AdvancedLeakAwareByteBuf`对象是继承`SimpleLeakAwareByteBuf`的
 
-而`SimpleLeakAwareByteBuf`中有一个`leak`是ByteBuf 的弱引用
+`SimpleLeakAwareByteBuf`中有有一个属性`ResourceLeakTracker<ByteBuf> leak`
 
 ```java
 class SimpleLeakAwareByteBuf extends WrappedByteBuf {
@@ -117,19 +119,81 @@ class SimpleLeakAwareByteBuf extends WrappedByteBuf {
 }
 ```
 
-
-
-
-
-2. 这个 `ByteBuf` 对象本身如果在使用后没有被强引用（例如，方法执行完，局部变量消失），它就会被 JVM 的 GC 标记为可回收
-
-3. 当 GC 真正回收这个 `ByteBuf` 对象时，它的“哨兵”（`ResourceLeakTracker`）会被自动放入之前注册的`ReferenceQueue` 监控队列中
+`leak`是`ByteBuf` 的弱引用,因为`ResourceLeakTracker`接口的默认实现是`DefaultResourceLeak`，继承了`WeakReference`
 
 ```java
-private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
+    private static final class DefaultResourceLeak<T>
+            extends WeakReference<Object> implements ResourceLeakTracker<T>, ResourceLeak 
 ```
 
-4. `ResourceLeakDetector` 有一个后台线程会检查`ReferenceQueue`这个队列。一旦发现队列里有“哨兵”出现，它就知道这个“哨兵”对应的 `ByteBuf` 对象已经被回收了
+
+### ByteBuf正常释放
+
+
+当这个`ByteBuf`使用完成后会调用`release`进行释放,`release`方法会调用`closeLeak`方法关闭内存泄漏检测
+
+```java
+    @Override
+    public boolean release(int decrement) {
+        // // 引用计数为 0 
+        if (super.release(decrement)) {
+            // 关闭内存泄露的探测
+            closeLeak();
+            return true;
+        }
+        return false;
+    }
+
+    private void closeLeak() {
+        // Close the ResourceLeakTracker with the tracked ByteBuf as argument. This must be the same that was used when
+        // calling DefaultResourceLeak.track(...).
+        boolean closed = leak.close(trackedByteBuf);
+        assert closed;
+    }
+```
+
+我们来看看`close`方法具体做了什么
+
+- io.netty.util.ResourceLeakDetector.DefaultResourceLeak#close()
+
+```java
+        @Override
+        public boolean close() {
+            if (allLeaks.remove(this)) {
+                // Call clear so the reference is not even enqueued.
+                clear();
+                headUpdater.set(this, null);
+                return true;
+            }
+            return false;
+        }
+```
+
+close就是将`DefaultResourceLeak` 从`allLeaks` 集合中删除，因为`allLeaks` 中保存的全部都是未被释放的`trackedByteBuf` 对应的 `DefaultResourceLeak `
+
+然后调用`io.netty.util.ResourceLeakDetector.DefaultResourceLeak#close()`断开 `DefaultResourceLeak` 与 `trackedByteBuf` 的弱引用关联
+
+`clone`方法中的`clear`实际还是调用的`java.lang.ref.Reference#clear`方法
+
+断开弱引用关联后，当  `trackedByteBuf` 被 GC 之后，JVM 将不会把 `DefaultResourceLeak` 放入到  `_reference_pending_list` 中
+
+会将 `DefaultResourceLeak` 与 `trackedByteBuf` 一起回收。这样一来，`refQueue` 中不会出现这个 `DefaultResourceLeak` ，`ResourceLeakDetector` 也就不会错误地探测到它了
+
+
+
+
+###  ByteBuf非正常释放(内存泄漏)
+
+如果`SimpleLeakAwareByteBuf`忘记释放，那么它对应的`DefaultResourceLeak` 就会一直停留在`allLeaks` 集合中
+
+当 `SimpleLeakAwareByteBuf` 被 GC 之后，JVM 就会将 `DefaultResourceLeak` 放入到 `_reference_pending_list` 中
+
+随后唤醒`ReferenceHandler` 线程将 `DefaultResourceLeak` 从 `_reference_pending_list` 中转移到 `refQueue`
+
+
+当下一次内存分配的时候，如果命中内存泄露采样检测的概率，那么 `ResourceLeakDetector` 就会从 `refQueue` 中将收集到的所有 `DefaultResourceLeak` 挨个摘下，并判断它们是否仍然停留在 `allLeaks` 中。
+
+如果仍然在 `allLeaks` 中，就说明该  `DefaultResourceLeak` 对应的 `ByteBuf` 发生了内存泄露，而具体的泄露路径就保存在 `DefaultResourceLeak` 栈中，最后将泄露路径以 `ERROR` 的日志级别打印出来。
 
 ```java
     private void reportLeak() {
@@ -149,6 +213,7 @@ private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
                 continue;
             }
 
+            // 当探测到 ByteBuf 发生内存泄露之后，这里会获取 ByteBuf 相关的访问堆栈 
             String records = ref.getReportAndClearRecords();
             if (reportedLeaks.add(records)) {
                 if (records.isEmpty()) {
@@ -166,12 +231,10 @@ private final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
     }
 ```
 
-5. 此时，它会检查这个 `ByteBuf` 是否被正常 `release()` 过。如果答案是“否”，那么“人赃并获”——内存泄漏发生！ `ResourceLeakDetector` 就会立即打印出详细的泄漏报告
 
+`WeakReference`(弱引用)+ `ReferenceQueue`(引用队列)是很常见的资源回收使用方式
 
-`DefaultResourceLeak`(虚拟引用)+ `ReferenceQueue`(引用队列)是很常见的资源回收使用方式
-
-> `DefaultResourceLeak` 和 `PhantomReference`都是虚拟引用，但是有什么区别呢？
+> `WeakReference`(弱引用)+ 或者 `PhantomReference`(虚引用)都可以实现资源回收，两者有什么区别呢？
 > 感兴趣可以自己百度搜索
 
 
@@ -340,7 +403,7 @@ Created at:
 
 `Netty`的内存检测机制需要手动通过参数`-Dio.netty.leakDetection.level=paranoid`开启设置检测等级
 
-内存泄漏检测必须等到ByteBuf 被 GC 之后，内存泄露才能探测的到
+内存泄漏检测必须等到`ByteBuf` 被 GC 之后，内存泄露才能探测的到
 
 ## 参考
 
