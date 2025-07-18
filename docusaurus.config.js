@@ -168,6 +168,21 @@ const config = {
 
           },
           {
+            label: 'GO',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'GO基础',
+                to: '/docs/GO/GO基础',
+                label: 'GO基础',
+              },
+
+            ]
+
+          },
+          {
             label: 'APM',
             type: 'dropdown',
             position: 'left',
@@ -209,7 +224,7 @@ const config = {
             ]
 
           },
-                    {
+          {
             label: 'DevOps',
             type: 'dropdown',
             position: 'left',
@@ -241,6 +256,33 @@ const config = {
             sidebarId: '分布式系统',
             position: 'left',
             label: '分布式系统',
+          },
+          {
+            label: '数据库',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'MySQL',
+                to: '/数据库/MySQL',
+                label: 'MySQL',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'PostgreSQL',
+                to: '/数据库/PostgreSQL',
+                label: 'PostgreSQL',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'ClickHouse',
+                to: '/数据库/ClickHouse',
+                label: 'ClickHouse',
+              },
+
+            ]
+
           },
           {
             label: '我的开源项目',
