@@ -111,7 +111,7 @@ public class GenerateEnumAction extends AnAction {
 创建了`Action` class后，我们需要在`plugin.xml` 文件中注册它，这样`IDEA`才能知道它的存在以及何时显示它
 
 
-打开 `src/main/resources/META-INF/plugin.xml` 文件，在 <actions> 标签内添加如下代码：
+打开 `src/main/resources/META-INF/plugin.xml` 文件，在 `<actions>` 标签内添加如下代码：
 
 
 ```java
