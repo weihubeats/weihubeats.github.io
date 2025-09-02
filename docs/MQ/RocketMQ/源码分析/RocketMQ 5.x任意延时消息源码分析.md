@@ -413,10 +413,15 @@ enqueuePutQueue = new DisruptorBlockingQueue<>(DEFAULT_CAPACITY);
 
 
 从 dequeueGetQueue 中取出 TimerRequest
+
 对取出的 TimerRequst，从 CommitLog 中查询原始消息
+
 处理定时消息取消请求，查询出原始消息中要取消消息的 UNIQ_KEY，放入 deleteUniqKeys Set
+
 处理普通定时消息请求
+
 如果 DeleteUniqKeys 中包含这个消息，则什么都不做（取消投递）
+
 否则将查出的原始消息放入 TimerRequest，然后将 TimerRequest 放入 dequeuePutQueue，准备投递到 CommitLog
 
 
@@ -425,9 +430,12 @@ enqueuePutQueue = new DisruptorBlockingQueue<>(DEFAULT_CAPACITY);
 这个线程的作用是：将消息从`dequeuePutQueue` 中取出，若已经到期，投递到 CommitLog 中
 
 无限循环从 dequeuePutQueue 中取出 TimerRequest
+
 将原始消息的 Topic 和 queueId 从消息属性中取出，用它们构造成一个新的消息
+
 将消息投递到 CommitLog
-如果投递失败，则需要等待{精确度 / 2}时间然后重新投递，必须保证消息投递成功
+
+如果投递失败，则需要等待`{精确度 / 2}`时间然后重新投递，必须保证消息投递成功
 
 
 
