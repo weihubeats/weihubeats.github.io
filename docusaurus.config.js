@@ -183,6 +183,12 @@ const config = {
 
           },
           {
+            type: 'docSidebar',
+            sidebarId: 'Python',
+            position: 'left',
+            label: 'Python',
+          },
+          {
             label: 'APM',
             type: 'dropdown',
             position: 'left',
@@ -279,6 +285,12 @@ const config = {
                 sidebarId: 'ClickHouse',
                 to: '/数据库/ClickHouse',
                 label: 'ClickHouse',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'Redis',
+                to: '/数据库/Redis',
+                label: 'Redis',
               },
 
             ]
