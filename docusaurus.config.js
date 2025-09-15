@@ -147,6 +147,12 @@ const config = {
               },
               {
                 type: 'docSidebar',
+                sidebarId: 'RPC',
+                to: '/docs/java/RPC',
+                label: 'RPC',
+              },
+              {
+                type: 'docSidebar',
                 sidebarId: 'idea',
                 to: '/docs/java/idea',
                 label: 'idea',
