@@ -373,7 +373,7 @@ Recent access records:
 Created at:
 	io.netty.buffer.PooledByteBufAllocator.newDirectBuffer(PooledByteBufAllocator.java:402)
 	io.netty.buffer.AbstractByteBufAllocator.directBuffer(AbstractByteBufAllocator.java:187)
-	com.cider.MyLeakTest.allocate(MyLeakTest.java:59)
+	com.xiaozou.MyLeakTest.allocate(MyLeakTest.java:59)
 ```
 
 可以看到出现内存泄漏后打印了完整的堆栈信息
