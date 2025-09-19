@@ -190,9 +190,9 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'Python',
+            sidebarId: 'python',
             position: 'left',
-            label: 'Python',
+            label: 'python',
           },
           {
             label: 'APM',
