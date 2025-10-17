@@ -6,6 +6,27 @@
 npm run start
 ```
 
+> 需要安装node
+> 如果是第一次运行，需要`npm install  `
+
+node安装
+
+```shell
+# 安装 nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# 重新加载 shell 配置
+source ~/.zshrc  # 如果使用 bash，改为 source ~/.bashrc
+
+# 安装最新 LTS 版本的 Node.js
+nvm install --lts
+nvm use --lts
+
+# 设置为默认版本
+nvm alias default node
+```
+
+
 ## 地址
 
 [访问地址](https://weihubeats.github.io)

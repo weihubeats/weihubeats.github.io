@@ -205,7 +205,19 @@ const config = {
                 to: '/docs/apm/skywalking',
                 label: 'skywalking',
               },
-
+              {
+                type: 'docSidebar',
+                sidebarId: 'OpenTelemetry',
+                to: '/docs/apm/OpenTelemetry',
+                label: 'OpenTelemetry',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'Prometheus',
+                to: '/docs/apm/Prometheus',
+                label: 'Prometheus',
+              },
+              
             ]
 
           },
@@ -299,6 +311,20 @@ const config = {
                 label: 'Redis',
               },
 
+            ]
+
+          },
+                    {
+            label: '安全',
+            type: 'dropdown',
+            position: 'left',
+            items: [
+              {
+                type: 'docSidebar',
+                sidebarId: '用户权限',
+                to: '/安全/用户权限',
+                label: '用户权限',
+              },
             ]
 
           },
