@@ -89,3 +89,64 @@ OAuth 2.0 是关于 授权，而不是 认证。
 这通常需要结合另一个协议 OpenID Connect，它在 OAuth 2.0 之上增加了一个身份层，专门用于解决认证问题。
 
 我们常说的“第三方登录”其实是 `OAuth 2.0` + `OpenID Connect` 共同实现的。
+
+## 我进需要接入三方登入，不需要给三方授权，需要 `OAuth 2.0`吗
+
+需要
+
+比如我们想要接入微信登入。这时候的角色定义
+
+- 资源所有者：你的用户
+
+- 资源服务器：微信（它存着用户的头像、昵称等数据）
+
+- 客户端：你的网站
+
+- 授权服务器：也是微信（它负责问用户是否同意授权）
+
+你的网站是 `OAuth 2.0` 流程中的“客户端”，而不是授权方。你需要实现的是 `OAuth 2.0` 的客户端逻辑，而不是服务器端逻辑。
+
+这个过程可以分解为以下几个必须由你的网站完成的步骤：
+
+
+
+### 1. 发起授权请求
+
+
+
+你的网站需要在“使用微信登录”按钮后面生成一个符合 `OAuth 2.0` 标准的 URL，并将用户重定向到微信的授权页面。
+
+```shell
+https://open.weixin.qq.com/connect/oauth2/authorize?
+  appid=你的APPID
+  &redirect_uri=你的回调地址
+  &response_type=code
+  &scope=snsapi_login
+  &state=随机防CSRF字符串
+```
+
+### 2. 处理授权回调
+
+用户在微信上点击“同意”后，微信会带着一个临时的 `授权码（code`） 跳转回你事先在微信开放平台注册好的`回调地址（Redirect URI）。`
+
+
+你的网站必须有一个接口（比如 `/oauth/wechat/callback`）来接收这个请求，并从中提取出 code。如果这一步你不做，你就拿不到这个关键的 code。
+
+
+### 3. 用授权码交换访问令牌
+
+你的网站后端需要拿着这个`code` 以及你的`AppSecret`，再向微信的服务器发起一个后端到后端的请求，去交换最终的`访问令牌（Access Token）`
+
+```bash
+POST https://api.weixin.qq.com/sns/oauth2/access_token?
+  appid=你的APPID
+  &secret=你的APPSECRET
+  &code=上一步拿到的code
+  &grant_type=authorization_code
+```
+
+### 4. 使用访问令牌获取用户信息
+
+
+最后，你的网站再用这个 Access Token 去调用微信的 API（例如 https://api.weixin.qq.com/sns/userinfo?access_token=...），才能安全地拿到用户的昵称、头像等基本信息，并完成在你网站上的登录或注册流程。
+
