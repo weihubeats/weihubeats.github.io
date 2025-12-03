@@ -90,10 +90,10 @@ Prometheus 是一个基于拉取的、维度化的时序数据库，其核心数
 - 严禁高基数标签：绝对不要将 UUID、用户ID、邮箱、Trace ID、IP 地址等放入 Prometheus 标签。
 
 - 使用“桶” (Bucketing)：
-    - 不要：status="200", status="201", status="400", status="404", status="500", status="503"
+    - 不要：`status="200", status="201", status="400", status="404", status="500", status="503"`
 - 规范化和聚合：
-    - 不要：path="/api/user/123/profile", path="/api/user/456/profile"
-    - 要：path="/api/user/{user_id}/profile"（在代码中对 URL 进行规范化）
+    - 不要：`path="/api/user/123/profile", path="/api/user/456/profile"`
+    - 要：`path="/api/user/{user_id}/profile"`（在代码中对 URL 进行规范化）
 
 - 将高基数数据移至日志/追踪：
     如果你想看“某个特定用户 user-123 的请求失败率”，你不应该在指标里查。
@@ -101,7 +101,7 @@ Prometheus 是一个基于拉取的、维度化的时序数据库，其核心数
     正确做法：
     通过指标（低基数）发现“5xx 错误率激增”。
     跳转到日志（如 Loki, Elasticsearch）或追踪（如 Jaeger, Tempo）系统。
-    在日志/追踪系统中查询高基数的 user_id 或 trace_id 来定位具体问题
+    在日志/追踪系统中查询高基数的 `user_id` 或 `trace_id` 来定位具体问题
 
 
 这些主要是从使用上进行优化，如果要进行性能优化，只能另寻他法
@@ -116,7 +116,7 @@ Prometheus 是一个基于拉取的、维度化的时序数据库，其核心数
 
     - 场景：你要在 10 亿行日志中查询 GROUP BY ip_address。
 
-        - 行式数据库 (MySQL)：读取 10 亿行 所有数据（timestamp, ip, user_id, url, body...），然后丢弃大部分，只留下 ip 列进行计算。非常慢。
+        - 行式数据库 (MySQL)：读取 10 亿行 所有数据（timestamp, ip, `user_id`, url, body...），然后丢弃大部分，只留下 ip 列进行计算。非常慢。
 
         - 列式数据库 (ClickHouse)：只读取 ip_address 这一列的数据。I/O 降低了 90% 以上，并且由于同列数据高度相似，压缩率极高，查询速度快上百倍。
 
@@ -131,7 +131,7 @@ Prometheus 是一个基于拉取的、维度化的时序数据库，其核心数
 
 ### 使用近似算法（Approximate Algorithms）
 
-- 问题：SELECT COUNT(DISTINCT user_id) FROM logs;（计算日活跃用户）。这是一个在传统数据库上极其缓慢的操作，因为它需要将所有 user_id 加载到内存中去重。
+- 问题：`SELECT COUNT(DISTINCT user_id) FROM logs;`（计算日活跃用户）。这是一个在传统数据库上极其缓慢的操作，因为它需要将所有 `user_id` 加载到内存中去重。
 
 - 解决方案：HyperLogLog (HLL) 算法。
 
@@ -147,7 +147,7 @@ Prometheus 是一个基于拉取的、维度化的时序数据库，其核心数
 
 阶段|	核心行动|	具体方法|
 :--:|:--:|:--:|
-预防|	审慎设计|	标签用于维度，而非实体。避免使用 user_id, ip 等。
+预防|	审慎设计|	标签用于维度，而非实体。避免使用 `user_id`, ip 等。
 诊断|	快速定位|	使用 topk(10, count by ...) 和 TSDB Status 页面找到问题指标和标签。
 治理|	削减基数|	1. 代码层面：移除或替换高基数标签。2.  Relabeling：抓取时删除标签或丢弃指标。3. Recording Rules：预聚合，化详细数据为统计值。
 架构|	升级方案|	1. 迁移到 VictoriaMetrics。2. 采用 Thanos/Cortex 进行降采样。
