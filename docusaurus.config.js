@@ -169,6 +169,12 @@ const config = {
                 to: '/docs/java/性能优化',
                 label: '性能优化',
               },
+              {
+                type: 'docSidebar',
+                sidebarId: '系统重构',
+                to: '/docs/java/系统重构',
+                label: '系统重构',
+              },
 
             ]
 
