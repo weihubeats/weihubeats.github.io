@@ -153,6 +153,12 @@ const config = {
               },
               {
                 type: 'docSidebar',
+                sidebarId: 'ORM',
+                to: '/docs/java/ORM',
+                label: 'ORM',
+              },
+              {
+                type: 'docSidebar',
                 sidebarId: 'idea',
                 to: '/docs/java/idea',
                 label: 'idea',
