@@ -167,4 +167,70 @@ public class SkyWalkingAccessor {
 
 将`apm-toolkit-trace`依赖直接引入基础组件，需要基础组件的人负责
 
+
+## 进阶方案 自己解析sw8请求头
+
+`skywalking`的请求头是标准的协议，解析起来也不费劲
+
+解析代码
+
+```java
+@Slf4j
+public class Sw8Parser {
+
+    private static final String HEADER_DELIMITER = "-";
+
+    private static final int SW8_PART_COUNT = 8;
+
+    public static final String HEADER_SW8 = "sw8";
+
+    /**
+     * 解析 sw8 头获取 TraceId
+     * sw8 格式: Sample-TraceId-ParentTraceSegmentId-ParentSpanId-...
+     * 所有字符串类型的字段都是 Base64 编码的
+     */
+    public static String getTraceId(String sw8Header) {
+        if (StrUtil.isBlank(sw8Header)) {
+            return null;
+        }
+        try {
+            String[] parts = sw8Header.split(HEADER_DELIMITER);
+            if (parts.length < SW8_PART_COUNT) {
+                return null;
+            }
+            // 索引 1 是 TraceId，经过 Base64 编码
+            String base64TraceId = parts[1];
+            return new String(Base64.getDecoder().decode(base64TraceId), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.warn("Failed to parse sw8 traceId: {}", sw8Header);
+            return null;
+        }
+    }
+
+    /**
+     * 解析 sw8 头获取 ParentSpanId
+     */
+    public static String getParentSpanId(String sw8Header) {
+        if (StrUtil.isBlank(sw8Header)) {
+            return null;
+        }
+        try {
+            String[] parts = sw8Header.split(HEADER_DELIMITER);
+            if (parts.length < SW8_PART_COUNT) {
+                return null;
+            }
+            // 索引 3 是 ParentSpanId，直接是整数，没有 Base64
+            return parts[3];
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+
+```
+
 ## 总结
+
+1. 新旧Trace组件共存导致链路断开的问题，核心原因是“透传协议不兼容”（请求头不一致）。
+
+2. 解决这类问题的核心思路是“兼容适配”——让新组件能识别老组件的协议，实现上下文的平滑传递
