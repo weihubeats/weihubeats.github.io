@@ -202,9 +202,9 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'python',
+            sidebarId: 'Python',
             position: 'left',
-            label: 'python',
+            label: 'Python',
           },
           {
             label: 'APM',
@@ -336,6 +336,12 @@ const config = {
                 sidebarId: '用户权限',
                 to: '/安全/用户权限',
                 label: '用户权限',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: '软件',
+                to: '/安全/软件',
+                label: '软件',
               },
             ]
 
