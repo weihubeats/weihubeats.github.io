@@ -179,3 +179,13 @@ DESC user_order;
 
 
 ![alt text](images/gh_ost_count.png)
+
+## 环境清理(可选)
+
+验证完成后如果我们想要清理环境
+
+```bash
+docker stop mysql-lab
+docker rm mysql-lab
+rm /tmp/gh-ost.*.sock
+```
