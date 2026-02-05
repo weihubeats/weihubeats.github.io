@@ -60,3 +60,21 @@ curl -fsSL https://opencode.ai/install | bash
 ```
 
 
+## 为什么使用opencode
+
+为什么有了网页版本的`AI`对话，我们还需要使用`opencode`
+
+1. 用 AGENTS.md 固化写作风格（永久生效）
+2. 建立系列文章的目录结构
+3. 调用本地素材库生成文章
+
+这些是网页版 AI 做不到的 —— 这就是 OpenCode 的价值。
+
+
+
+
+## 参考
+
+- https://github.com/anomalyco/opencode
+- https://opencode.ai/docs/tui/
+- https://learnopencode.com/

@@ -326,7 +326,7 @@ const config = {
             ]
 
           },
-                    {
+          {
             label: '安全',
             type: 'dropdown',
             position: 'left',

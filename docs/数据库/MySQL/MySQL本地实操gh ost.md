@@ -189,3 +189,55 @@ docker stop mysql-lab
 docker rm mysql-lab
 rm /tmp/gh-ost.*.sock
 ```
+
+## 异常情况处理
+
+一般启动会打印出`gh-ost`运行时创建的`socket`文件
+
+```shell
+# Serving on unix socket: /tmp/gh-ost.gh_test.user_order.sock
+```
+
+这里可以看到目录在`/tmp/gh-ost.gh_test.user_order.sock`
+
+### 主从延迟过大，从库报警:gh-ost 在主库写入太快，单线程复制的从库追不上
+
+gh-ost 默认会自动检测从库延迟（--max-lag-millis），如果它没生效，手动通过 Socket 调大检测灵敏度，或者暂停一下
+
+```bash
+echo throttle | nc -U /tmp/gh-ost.gh_test.user_order.sock
+```
+
+待数据库稳定后恢复同步
+
+```bash
+echo no-throttle | nc -U /tmp/gh-ost.gh_test.user_order.sock
+```
+
+### 磁盘空间报警： 迁移跑到 80%，运维报警磁盘空间不足（Disk Usage > 90%）。 原因： Binlog 增长太快，或者新旧两张大表并存（8000万行 x 2）占满了空间
+
+## Cut-over 阶段切换超时/失败
+
+- 现象： 数据同步到了 100%，你删除了 postpone 文件开始切换，但 gh-ost 报错超时，或者一直在重试。 错误日志可能包含：Error: ... lock wait timeout exceeded ...
+
+- 原因： 切换表名需要获取原表（user_order）的元数据锁 (Metadata Lock)。如果此时有一个长事务（比如有人在跑报表 SQL）占用了原表的读锁，gh-ost 就抢不到锁，无法重命名
+
+查看正在运行的长事务
+
+```sql
+SHOW PROCESSLIST;
+```
+
+找那些 Command 是 Query 且 Time 很大的连接，且正在操作 user_order 表。
+
+解决方案：
+1. （推荐）：等待该 SQL 执行完。gh-ost 会不断重试
+2. （暴力，不推荐）：杀掉那个阻塞的业务 SQL 连接
+
+### 彻底放弃迁移（如何清理垃圾）
+
+迁移了一半，发现字段加错了，或者不想迁了。如何把环境恢复原状
+
+1. 终止进程: 在运行 gh-ost 的终端按 Ctrl+C，或者使用 `kill` 命令杀掉进程。 或者使用 Panic 文件：`touch /tmp/ghost.panic.flag`
+
+2. 清理残留表:`gh-ost`没迁移完成主要是有一张影子表:`_user_order_gho`（影子表）
