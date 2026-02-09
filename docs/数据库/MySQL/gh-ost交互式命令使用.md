@@ -8,8 +8,8 @@
 
 如何找到
 
-1. 查看启动日志：启动的前几行日志里会写：Listening on unix socket file: ...
-2. 直接去目录找：通常格式为 gh-ost.<数据库名>.<表名>.sock
+1. 查看启动日志：启动的前几行日志里会写：`Listening on unix socket file: ...`
+2. 直接去目录找：通常格式为 `gh-ost.<数据库名>.<表名>.sock`
 
 ```bash
 ls -l /tmp/gh-ost.*.sock

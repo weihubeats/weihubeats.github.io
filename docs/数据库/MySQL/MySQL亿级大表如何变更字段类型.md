@@ -1,25 +1,25 @@
 ## 背景
 
-线上千万大表需要变更表字段，先本地模拟验证下
-
-## 验证目的
-
-验证数据迁移正确性，以及数据迁移过程是否锁表
+线上千万大表需要变更表字段,数据量在8000w左右
 
 
 ## 环境
 
 - 数据库： MySQL8
-- 数据量: 50w
+- 数据量: 8000w
+- 表名:user_order
 
 ## 注意事项
 
-1. 本地验证的MySQL没有验证集群模式
-2. 本地验证的MySQL没有验证数据同步，比如DTS等
+迁移过程需要注意`DTS`同步到下游数据库的兼容性问题
 
-> 实际线上环境更为复杂，线上如果要使用`gh-ost`需要在线上再次验证
+比如`SelectDB`或者`ADB`是否会同步变更表结构，DTS是否会断连
 
-## 验证
+目前验证是`SelectDB`和`ADB`需要手动变更表字段
+DTS如果是`TINNIT`修改为`INT` DTS不会中断
+
+
+## 模拟操作
 
 ### Docker安装MySQL
 
@@ -38,7 +38,7 @@ docker run --name mysql-lab \
   --default-authentication-plugin=mysql_native_password
 ```
 
-安装完成后可以使用`docker`自带工具进行连接数据库，确认数据库安装挣钱
+安装完成后可以使用`docker`自带工具进行连接数据库，确认数据库安装正确
 
 ```bash
 # 使用 Docker 内置客户端连接
@@ -70,7 +70,7 @@ USE gh_test;
 CREATE TABLE user_order (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_no VARCHAR(64) NOT NULL,
-    biz_type TINYINT NOT NULL COMMENT '业务类型', -- 这里是我们主要修改的目标
+    biz_type TINYINT NOT NULL COMMENT '业务类型', -- 这里是我们主要修改的字段
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 ```
@@ -96,6 +96,17 @@ DELIMITER ;
 CALL generate_data();
 ```
 
+如果存储过程被禁用，也可以使用如下方式早数据库
+
+```sql
+-- 种子数据插入
+INSERT INTO user_order (order_no, biz_type) VALUES  (UUID(), 10), (UUID(), 20), (UUID(), 30), (UUID(), 40), (UUID(), 50);
+
+-- 笛卡尔积插入50w数据
+INSERT INTO user_order (order_no, biz_type) SELECT      UUID(),FLOOR(RAND() * 100)    FROM     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t1,     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t2,     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t3,     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t4,     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t5,     (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t6 LIMIT 500000;
+```
+
+
 3. 测试数据验证
 
 ```sql
@@ -119,7 +130,7 @@ touch /tmp/ghost.postpone.flag
 gh-ost \
 --max-load=Threads_running=25 \
 --critical-load=Threads_running=50 \
---chunk-size=1000 \
+--chunk-size=3000 \
 --max-lag-millis=1500 \
 --host=127.0.0.1 \
 --port=3306 \
@@ -190,6 +201,25 @@ docker rm mysql-lab
 rm /tmp/gh-ost.*.sock
 ```
 
+## 迁移速度太慢
+
+如果线上资源文档，表数据同步太慢，可以动态调整迁移批次
+
+- 增大 chunk-size (每次拷贝的行数)
+
+```shell
+# 将批次大小从 1000 调整为 2000
+echo chunk-size=2000 | nc -U /tmp/gh-ost.gh_test.user_order.sock
+```
+
+- 放宽 max-lag-millis (延迟容忍度)
+
+```shell
+# 将最大允许延迟调整为 3000毫秒 (3秒)
+echo max-lag-millis=3000 | nc -U /tmp/gh-ost.gh_test.user_order.sock
+```
+
+
 ## 异常情况处理
 
 一般启动会打印出`gh-ost`运行时创建的`socket`文件
@@ -241,3 +271,8 @@ SHOW PROCESSLIST;
 1. 终止进程: 在运行 gh-ost 的终端按 Ctrl+C，或者使用 `kill` 命令杀掉进程。 或者使用 Panic 文件：`touch /tmp/ghost.panic.flag`
 
 2. 清理残留表:`gh-ost`没迁移完成主要是有一张影子表:`_user_order_gho`（影子表）
+
+```sql
+DROP TABLE IF EXISTS _user_order_gho;
+```
+
