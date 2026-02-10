@@ -9,12 +9,12 @@ $$\underbrace{\text{<metric name>}}_{\text{指标名称}}\{\underbrace{\text{<la
 
 **示例：**
 
-代码段
 
+```
     # HELP http_requests_total 统计各HTTP端点的请求总数，含请求方法、状态码
     # TYPE http_requests_total counter
     http_requests_total{method="GET", status_code="200", endpoint="/api/user"}  1568  1620000000000
-
+```
 *   **含义**：在时间戳 `1620000000000`，`/api/user` 接口的 GET 请求（200 OK）累计发生了 1568 次。
 
 
@@ -72,7 +72,9 @@ $$
 
 * **场景**：请求总数、错误总数、支付次数、任务执行次数。
 
-* **查询**：必须结合 `rate()` 函数计算速率。
+* **查询**：必须结合 `rate()` 函数计算速率
+
+
 
   * $$
     QPS=rate\left(http_requests_total\left[5m\right]\right)

@@ -4,6 +4,9 @@
 
 ```shell
 npm run start
+
+# 不使用默认浏览器打开 解决IPv4 与 IPv6 的冲突
+npm run start -- --host 0.0.0.0 --no-open
 ```
 
 > 需要安装node
