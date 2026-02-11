@@ -52,3 +52,10 @@ git commit -m 'update'
 
 git push -u origin main
 ```
+
+
+## 数学公式支持
+
+```
+npm install --save remark-math@6 rehype-katex@7
+```
