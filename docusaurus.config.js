@@ -7,6 +7,94 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import fs from 'fs';
+import path from 'path';
+
+function getCategoryMeta(dirPath, defaultName) {
+  const categoryPath = path.join(dirPath, '_category_.json');
+  let position = 999;
+  let label = defaultName;
+
+  if (fs.existsSync(categoryPath)) {
+    try {
+      const content = fs.readFileSync(categoryPath, 'utf8');
+      const json = JSON.parse(content);
+      if (json.position !== undefined) position = json.position;
+      // 🚀 如果配置了 label，就用配置的别名覆盖默认文件名！
+      if (json.label !== undefined) label = json.label;
+    } catch (e) {
+      console.warn(`无法解析 JSON: ${categoryPath}`);
+    }
+  }
+  return { position, label };
+}
+
+
+function getDynamicNavItems() {
+  const docsDir = path.resolve(process.cwd(), 'docs');
+  if (!fs.existsSync(docsDir)) return [];
+
+  /** @type {any[]} */
+  const navItems = [];
+  const ignoreFolders = ['images', 'img', 'assets', '.DS_Store'];
+
+  // 1. 获取并处理一级目录
+  const topFolders = fs.readdirSync(docsDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
+    .map(dirent => {
+      // 提前解析元数据
+      const meta = getCategoryMeta(path.join(docsDir, dirent.name), dirent.name);
+      return { folderName: dirent.name, label: meta.label, position: meta.position };
+    })
+    .sort((a, b) => {
+      if (a.position !== b.position) return a.position - b.position;
+      return a.folderName.localeCompare(b.folderName);
+    });
+
+  topFolders.forEach(topFolder => {
+    // folderName 是真实的物理文件夹名（比如 "Spring-Boot"）
+    const topFolderName = topFolder.folderName;
+    // label 是网页上显示的漂亮名字（比如 "Spring Boot 专区"）
+    const topDisplayLabel = topFolder.label;
+
+    const subDirPath = path.join(docsDir, topFolderName);
+
+    // 2. 获取并处理二级目录
+    const subFolders = fs.readdirSync(subDirPath, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
+      .map(dirent => {
+        const meta = getCategoryMeta(path.join(subDirPath, dirent.name), dirent.name);
+        return { folderName: dirent.name, label: meta.label, position: meta.position };
+      })
+      .sort((a, b) => {
+        if (a.position !== b.position) return a.position - b.position;
+        return a.folderName.localeCompare(b.folderName);
+      });
+
+    if (subFolders.length > 0) {
+      navItems.push({
+        label: topDisplayLabel, // 🌟 这里使用漂亮的别名
+        type: 'dropdown',
+        position: 'left',
+        items: subFolders.map(sub => ({
+          label: sub.label,     // 🌟 下拉菜单也使用别名
+          type: 'docSidebar',
+          // ⚠️ ID 必须雷打不动地使用真实物理文件夹名，确保底层路由不断！
+          sidebarId: `${topFolderName}_${sub.folderName}`,
+        })),
+      });
+    } else {
+      navItems.push({
+        label: topDisplayLabel, // 🌟 使用别名
+        type: 'docSidebar',
+        sidebarId: `${topFolderName}Sidebar`, // ⚠️ 使用真实物理文件夹名
+        position: 'left',
+      });
+    }
+  });
+
+  return navItems;
+}
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -143,312 +231,11 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
+          ...getDynamicNavItems(),
+          { to: '/projects', label: '开源项目', position: 'right' },
+          { to: '/blog', label: '博客', position: 'left' },
           {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Tutorial',
-          },
-          {
-            label: 'MQ',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'RocketMQ',
-                to: '/docs/MQ/RocketMQ',
-                label: 'RocketMQ',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'Kafka',
-                to: '/docs/MQ/Kafka',
-                label: 'Kafka',
-              },
-
-            ]
-
-          },
-          {
-            label: 'Java',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'springboot',
-                to: '/docs/java/spring-boot',
-                label: 'Spring Boot',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'springcloud',
-                to: '/docs/java/spring-cloud',
-                label: 'Spring Cloud',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'netty',
-                to: '/docs/java/netty',
-                label: 'Netty',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'RPC',
-                to: '/docs/java/RPC',
-                label: 'RPC',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'ORM',
-                to: '/docs/java/ORM',
-                label: 'ORM',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'idea',
-                to: '/docs/java/idea',
-                label: 'idea',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'maven',
-                to: '/docs/java/maven',
-                label: 'maven',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: '性能优化',
-                to: '/docs/java/性能优化',
-                label: '性能优化',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: '系统重构',
-                to: '/docs/java/系统重构',
-                label: '系统重构',
-              },
-
-            ]
-
-          },
-          {
-            label: 'GO',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'GO基础',
-                to: '/docs/GO/GO基础',
-                label: 'GO基础',
-              },
-
-            ]
-
-          },
-          {
-            label: 'Python',
-            type: 'docSidebar',
-            sidebarId: 'Python',
-            position: 'left',
-          },
-          {
-            label: 'APM',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'skywalking',
-                to: '/docs/apm/skywalking',
-                label: 'skywalking',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'OpenTelemetry',
-                to: '/docs/apm/OpenTelemetry',
-                label: 'OpenTelemetry',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'Prometheus',
-                to: '/docs/apm/Prometheus',
-                label: 'Prometheus',
-              },
-
-            ]
-
-          },
-          {
-            label: '云原生',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'Kubernetes',
-                to: '/docs/云原生/Kubernetes',
-                label: 'Kubernetes',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'APISIX',
-                to: '/docs/云原生/APISIX',
-                label: 'APISIX',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'ServiceMesh',
-                to: 'docs/云原生/Service-Mesh',
-                label: 'Service Mesh',
-              },
-
-            ]
-
-          },
-          {
-            label: 'DevOps',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'CICD',
-                to: '/docs/devops/cicd',
-                label: 'CI/CD',
-              }
-
-            ]
-
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'AI',
-            position: 'left',
-            label: 'AI',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: '数据结构与算法',
-            position: 'left',
-            label: '数据结构与算法',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: '分布式系统',
-            position: 'left',
-            label: '分布式系统',
-          },
-          {
-            label: '数据库',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: 'MySQL',
-                to: '/数据库/MySQL',
-                label: 'MySQL',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'PostgreSQL',
-                to: '/数据库/PostgreSQL',
-                label: 'PostgreSQL',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'ClickHouse',
-                to: '/数据库/ClickHouse',
-                label: 'ClickHouse',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: 'Redis',
-                to: '/数据库/Redis',
-                label: 'Redis',
-              },
-
-            ]
-
-          },
-          {
-            label: '安全',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                type: 'docSidebar',
-                sidebarId: '用户权限',
-                to: '/安全/用户权限',
-                label: '用户权限',
-              },
-              {
-                type: 'docSidebar',
-                sidebarId: '软件',
-                to: '/安全/软件',
-                label: '软件',
-              },
-            ]
-
-          },
-          {
-            label: '我的开源项目',
-            type: 'dropdown',
-            position: 'left',
-            items: [
-              {
-                href: 'https://github.com/weihubeats/event-bus-rocketmq-all',
-                label: 'event-bus-rocketmq-all',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/spring-boot-nebula',
-                label: 'spring-boot-nebula',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/fluxcache',
-                label: 'fluxcache',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/ddd-example',
-                label: 'ddd-example',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/Asuna',
-                label: 'Asuna',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/mq-idempotent',
-                label: 'mq-idempotent',
-                target: '_blank',
-                rel: null,
-              },
-              {
-                href: 'https://github.com/weihubeats/mybatis-plus-generator',
-                label: 'mybatis-plus-generator',
-                target: '_blank',
-                rel: null,
-              },
-
-            ]
-
-          },
-
-          { to: '/blog', label: 'Blog', position: 'left' },
-          {
-            href: 'https://github.com/weihubeats',
+            href: 'https://github.com/weihubeats/weihubeats.github.io',
             label: 'GitHub',
             position: 'right',
           },

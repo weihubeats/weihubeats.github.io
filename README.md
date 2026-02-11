@@ -33,9 +33,22 @@ nvm use --lts
 nvm alias default node
 ```
 
+## URL规范
 
+默认情况下，如果你的文件叫 docs/MQ/RocketMQ/01-基础概念.md，生成的 URL 就是 `.../RocketMQ/01-基础概念`。 当别人复制你的文章链接分享到微信或论坛时，链接会被自动转码成这样： `https://yoursite.com/docs/MQ/RocketMQ/01-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5`
 
+ 这不仅极不美观，而且极易被各类社交平台截断，导致别人点进去直接 404
 
+最佳实践是使用
+
+```
+---
+title: RocketMQ 的核心概念与架构设计  # 这是网页上显示的漂亮中文标题
+slug: /rocketmq/core-concepts      # 🌟 这是在浏览器地址栏显示的永久英文 URL
+---
+
+正文从这里开始...
+```
 
 ## 一些注意事项
 
@@ -181,4 +194,90 @@ export default {
     // ...
   ],
 };
+```
+
+## 展示文章最后更新时间
+
+Docusaurus 底层会自动读取当前文件的 Git 提交历史（Git commit），来计算出这篇文章的最后修改时间和修改人。
+
+第一步：修改配置文件 打开你的 docusaurus.config.js，在你配置 docs 和 blog 的地方，开启这两个选项：showLastUpdateTime 和 showLastUpdateAuthor
+
+```js
+export default {
+  // ...
+  presets: [
+    [
+      'classic',
+      {
+        docs: {
+          sidebarPath: './sidebars.js',
+          // ⬇️ 开启文档的最后更新时间和作者
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: true,
+        },
+        blog: {
+          // 如果你之前没有禁用 blog，在这里开启
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: true,
+        },
+      },
+    ],
+  ],
+};
+```
+
+使用`GitHub Actions`自动部署
+
+自动部署网站，默认情况下它只会拉取“最近 1 次”的 Git 记录，这会导致所有文章的更新时间都变成“你刚刚部署的时间”。 解决方法：在你的 GitHub Actions 部署脚本（.github/workflows/deploy.yml）中，找到 actions/checkout，加上 fetch-depth: 0，让它拉取完整的 Git 历史
+
+```yaml
+- uses: actions/checkout@v3
+  with:
+    fetch-depth: 0  # 👈 必须加这个，否则更新时间不准
+```
+
+## 首位自定义
+
+```
+npm run swizzle @docusaurus/theme-classic DocItem/Content -- --wrap
+```
+
+修改生成的 Wrapper 文件 打开刚刚生成的 src/theme/DocItem/Content/index.js（或 .tsx），你可以像写普通的 React 组件一样，在正文的上下添加任何内容！
+
+把它改成类似这样：
+
+```js
+import React from 'react';
+import Content from '@theme-original/DocItem/Content';
+
+export default function ContentWrapper(props) {
+  return (
+    <>
+      {/* 🌟 这里是你的全局【前缀】 */}
+      <div style={{ 
+        padding: '12px', 
+        backgroundColor: 'var(--ifm-color-primary-lightest)', 
+        borderRadius: '8px',
+        marginBottom: '20px',
+        borderLeft: '4px solid var(--ifm-color-primary)'
+      }}>
+        👋 <strong>哈喽！我是 WeiHubeats。</strong> 欢迎关注我的公众号/GitHub，获取最新技术干货！
+      </div>
+
+      {/* 📄 这里是 Docusaurus 原本的文章正文 */}
+      <Content {...props} />
+
+      {/* 🌟 这里是你的全局【后缀】 */}
+      <div style={{ 
+        marginTop: '40px', 
+        paddingTop: '20px', 
+        borderTop: '1px solid var(--ifm-toc-border-color)',
+        textAlign: 'center',
+        color: 'var(--ifm-color-emphasis-700)'
+      }}>
+        <p>🎉 原创不易，如果这篇文章对你有帮助，欢迎点个赞或分享给朋友！</p>
+      </div>
+    </>
+  );
+}
 ```
