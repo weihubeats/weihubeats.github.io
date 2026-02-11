@@ -21,6 +21,7 @@ const config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+  trailingSlash: false,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -37,6 +38,17 @@ const config = {
     defaultLocale: 'zh-Hans',
     locales: ['zh-Hans'],
   },
+
+  plugins: [
+    'docusaurus-plugin-image-zoom',
+  ],
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: [
+    '@docusaurus/theme-mermaid',
+  ],
 
   presets: [
     [
@@ -95,6 +107,17 @@ const config = {
         apiKey: 'bfad805f458a9e9bb49358d2a71033c0',
         indexName: 'docusaurus-github-page',
         contextualSearch: true,
+      },
+      zoom: {
+        // 指定哪些图片可以被放大（这里设置为 Markdown 内容里的图片）
+        selector: '.markdown :not(em) > img',
+        background: {
+          light: 'rgba(255, 255, 255, 0.9)', // 亮色模式下的遮罩背景色
+          dark: 'rgba(50, 50, 50, 0.9)'      // 暗色模式下的遮罩背景色
+        },
+        config: {
+          // 你可以在这里添加 medium-zoom 的原生配置，通常留空即可
+        }
       },
       // Replace with your project's social card
       docs: {

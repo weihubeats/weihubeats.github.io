@@ -1,3 +1,8 @@
+---
+title: DepClean自动检测并移除无用依赖的神器
+slug: /java/maven/depclean-tutorial
+---
+
 ## 背景
 
 在 Java 开发中，随着项目的迭代，`pom.xml` 里的依赖往往会越堆越多。很多时候，我们引入了一个庞大的库，却只用到了其中一两个工具类
