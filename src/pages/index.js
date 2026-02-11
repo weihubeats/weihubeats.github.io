@@ -64,8 +64,8 @@ function HomepageHeader() {
         {showModal && (
           <div style={modalStyle} onClick={() => setShowModal(false)}>
             <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
-              <span 
-                style={closeStyle} 
+              <span
+                style={closeStyle}
                 onClick={() => setShowModal(false)}
                 role="button"
                 tabIndex={0}
@@ -74,10 +74,10 @@ function HomepageHeader() {
               </span>
               <h3>微信扫码关注</h3>
               <img
-                src="/img/wechat-qrcode.png" 
+                src="/img/wechat-qrcode.png"
                 alt="微信公众号二维码"
-                style={{ 
-                  width: '580px', 
+                style={{
+                  width: '580px',
                   height: '280px',
                   margin: '15px 0',
                   border: '1px solid #eee'
