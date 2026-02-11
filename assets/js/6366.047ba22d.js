@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweihubeats_website=globalThis.webpackChunkweihubeats_website||[]).push([[6366],{86366(e,s,i){i.d(s,{createArchitectureServices:()=>t.S});var t=i(38980);i(87960)}}]);
