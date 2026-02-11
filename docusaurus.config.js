@@ -90,6 +90,12 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      algolia: {
+        appId: 'JBXS0UZTOD',
+        apiKey: 'bfad805f458a9e9bb49358d2a71033c0',
+        indexName: 'docusaurus-github-page',
+        contextualSearch: true,
+      },
       // Replace with your project's social card
       docs: {
         sidebar: {
@@ -246,7 +252,7 @@ const config = {
                 to: '/docs/apm/Prometheus',
                 label: 'Prometheus',
               },
-              
+
             ]
 
           },
