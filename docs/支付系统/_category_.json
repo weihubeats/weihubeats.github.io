@@ -1,0 +1,7 @@
+{
+    "label": "支付系统",
+    "position": 99,
+    "customProps": {
+        "hideInNav": true
+    }
+}

@@ -1,0 +1,40 @@
+/* src/pages/projects.module.css */
+
+/* 头部弹性布局：让头像和标题横向排列并居中对齐 */
+.cardHeaderFlex {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* 头像和标题之间的间距 */
+}
+
+/* 头像的基础样式 */
+.projectAvatar {
+    width: 64px;
+    /* 设定固定宽高 */
+    height: 64px;
+    border-radius: 50%;
+    /* 变成圆形 */
+    object-fit: cover;
+    /* 保证图片不变形填满圆形 */
+    /* 加上一个淡淡的主题色边框，更精致 */
+    border: 3px solid var(--ifm-color-emphasis-200);
+    /* 定义过渡动画：针对 transform 属性，时长 0.6秒，缓动函数 */
+    transition: transform 0.6s ease-in-out;
+    /* 鼠标指针变为手型 */
+    cursor: pointer;
+}
+
+/* 🌟 核心动画：鼠标悬停时的样式 */
+.projectAvatar:hover {
+    /* 旋转 360 度 */
+    transform: rotate(360deg);
+    /* 悬停时边框高亮一下 */
+    border-color: var(--ifm-color-primary);
+}
+
+/* 调整一下标题的默认边距，让它和头像对齐更协调 */
+.cardTitle {
+    margin: 0 !important;
+    overflow-wrap: break-word;
+}

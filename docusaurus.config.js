@@ -14,58 +14,65 @@ function getCategoryMeta(dirPath, defaultName) {
   const categoryPath = path.join(dirPath, '_category_.json');
   let position = 999;
   let label = defaultName;
+  let hideInNav = false; // 👈 默认不隐藏
 
   if (fs.existsSync(categoryPath)) {
     try {
       const content = fs.readFileSync(categoryPath, 'utf8');
       const json = JSON.parse(content);
       if (json.position !== undefined) position = json.position;
-      // 🚀 如果配置了 label，就用配置的别名覆盖默认文件名！
       if (json.label !== undefined) label = json.label;
+
+      // 🚀 核心：读取官方支持的扩展字段 customProps 里的 hideInNav
+      if (json.customProps && json.customProps.hideInNav === true) {
+        hideInNav = true;
+      }
     } catch (e) {
       console.warn(`无法解析 JSON: ${categoryPath}`);
     }
   }
-  return { position, label };
+  return { position, label, hideInNav };
 }
 
 
+// 🚀 动态读取目录，生成导航栏配置
 function getDynamicNavItems() {
   const docsDir = path.resolve(process.cwd(), 'docs');
   if (!fs.existsSync(docsDir)) return [];
 
   /** @type {any[]} */
   const navItems = [];
+  // 基础的物理黑名单（纯粹不是文章目录的文件夹依然保留在这里）
   const ignoreFolders = ['images', 'img', 'assets', '.DS_Store'];
 
-  // 1. 获取并处理一级目录
+  // 1. 获取、过滤并排序【一级目录】
   const topFolders = fs.readdirSync(docsDir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
     .map(dirent => {
-      // 提前解析元数据
       const meta = getCategoryMeta(path.join(docsDir, dirent.name), dirent.name);
-      return { folderName: dirent.name, label: meta.label, position: meta.position };
+      return { folderName: dirent.name, label: meta.label, position: meta.position, hideInNav: meta.hideInNav };
     })
+    // 🌟 新增过滤条件：剔除掉要求隐藏的目录
+    .filter(item => !item.hideInNav)
     .sort((a, b) => {
       if (a.position !== b.position) return a.position - b.position;
       return a.folderName.localeCompare(b.folderName);
     });
 
   topFolders.forEach(topFolder => {
-    // folderName 是真实的物理文件夹名（比如 "Spring-Boot"）
     const topFolderName = topFolder.folderName;
-    // label 是网页上显示的漂亮名字（比如 "Spring Boot 专区"）
     const topDisplayLabel = topFolder.label;
-
     const subDirPath = path.join(docsDir, topFolderName);
 
-    // 2. 获取并处理二级目录
+    // 2. 获取、过滤并排序【二级目录】
     const subFolders = fs.readdirSync(subDirPath, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
       .map(dirent => {
         const meta = getCategoryMeta(path.join(subDirPath, dirent.name), dirent.name);
-        return { folderName: dirent.name, label: meta.label, position: meta.position };
+        return { folderName: dirent.name, label: meta.label, position: meta.position, hideInNav: meta.hideInNav };
       })
+      // 🌟 二级目录同样支持隐藏配置
+      .filter(item => !item.hideInNav)
       .sort((a, b) => {
         if (a.position !== b.position) return a.position - b.position;
         return a.folderName.localeCompare(b.folderName);
@@ -73,21 +80,20 @@ function getDynamicNavItems() {
 
     if (subFolders.length > 0) {
       navItems.push({
-        label: topDisplayLabel, // 🌟 这里使用漂亮的别名
+        label: topDisplayLabel,
         type: 'dropdown',
         position: 'left',
         items: subFolders.map(sub => ({
-          label: sub.label,     // 🌟 下拉菜单也使用别名
+          label: sub.label,
           type: 'docSidebar',
-          // ⚠️ ID 必须雷打不动地使用真实物理文件夹名，确保底层路由不断！
           sidebarId: `${topFolderName}_${sub.folderName}`,
         })),
       });
     } else {
       navItems.push({
-        label: topDisplayLabel, // 🌟 使用别名
+        label: topDisplayLabel,
         type: 'docSidebar',
-        sidebarId: `${topFolderName}Sidebar`, // ⚠️ 使用真实物理文件夹名
+        sidebarId: `${topFolderName}Sidebar`,
         position: 'left',
       });
     }
@@ -216,10 +222,6 @@ const config = {
           autoCollapseCategories: true,
         },
       },
-      announcementBar: {
-        id: 'announcementBar-2', // Increment on change
-        content: `⭐️ If you like, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/weihubeats">GitHub</a> and follow me. This web site is updating!! </a>`,
-      },
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 5,
@@ -242,49 +244,55 @@ const config = {
         ],
       },
       footer: {
-        style: 'dark',
+        style: 'dark', // 可选 'light' 或 'dark'，推荐 dark 显得更稳重
         links: [
           {
-            title: 'Docs',
+            title: '本站导航',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
-              },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'X',
-                href: 'https://x.com/docusaurus',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
+                label: '我的博客',
                 to: '/blog',
               },
+              {
+                label: '开源项目',
+                to: '/projects', // 👈 指向我们之前建的项目页
+              },
+            ],
+          },
+          {
+            title: '社交与联系',
+            items: [
               {
                 label: 'GitHub',
                 href: 'https://github.com/weihubeats',
               },
+              {
+                label: '掘金主页', // 如果有其他平台，可以加在这里
+                href: 'https://juejin.cn/user/395479918848487',
+              },
+            ],
+          },
+          {
+            title: '更多',
+            items: [
+              {
+                // 如果你有建站源码仓库，可以放这里
+                label: '本站源码 (GitHub)',
+                href: 'https://github.com/weihubeats/weihubeats.github.io',
+              },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        // 🌟 版权与备案信息 (支持 HTML 语法)
+        // 使用 new Date().getFullYear() 自动获取当前年份，永远不用手动改时间！
+        copyright: `
+        <p style="margin-bottom: 0;">Copyright © ${new Date().getFullYear()} WeiHubeats. Built with Docusaurus.</p>
+        <p style="margin: 0; font-size: 0.8rem; color: var(--ifm-footer-link-color);">
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style="color: inherit;">
+            📝 蜀ICP备XXXXXXXX号-1
+          </a>
+        </p>
+      `,
       },
       prism: {
         theme: prismThemes.github,

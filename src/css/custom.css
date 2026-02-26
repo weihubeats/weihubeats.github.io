@@ -28,3 +28,29 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* 针对 997px 到 1300px 宽度的屏幕（小电脑/平板横屏）进行极限空间压缩 */
+@media screen and (min-width: 997px) and (max-width: 1300px) {
+
+  /* 1. 缩小标签之间的左右间距（默认是 1rem，改小一半） */
+  .navbar__item {
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    /* 稍微调小字体 */
+  }
+
+  /* 2. 隐藏网站名称文字，只保留左侧的 Logo 恐龙/头像 */
+  .navbar__title {
+    display: none;
+  }
+
+  /* 3. 缩小搜索框的宽度 */
+  .navbar__search {
+    margin-left: 0.5rem;
+  }
+
+  .navbar__search input {
+    width: 9rem;
+    /* 默认比较宽，这里限制一下 */
+  }
+}

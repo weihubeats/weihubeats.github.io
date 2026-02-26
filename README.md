@@ -33,6 +33,22 @@ nvm use --lts
 nvm alias default node
 ```
 
+## 配置
+
+- 顶部标签页默认使用文件目录名为table名字
+
+如果需要自定义，在文件目录新增配置文件
+
+- `_category_.json`
+
+```json
+{
+    "label": "🚀 消息队列",
+    "position": 1
+}
+```
+
+
 ## URL规范
 
 默认情况下，如果你的文件叫 docs/MQ/RocketMQ/01-基础概念.md，生成的 URL 就是 `.../RocketMQ/01-基础概念`。 当别人复制你的文章链接分享到微信或论坛时，链接会被自动转码成这样： `https://yoursite.com/docs/MQ/RocketMQ/01-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5`
