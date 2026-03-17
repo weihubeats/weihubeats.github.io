@@ -10,6 +10,12 @@ import rehypeKatex from 'rehype-katex';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * 获取分类的元数据（position/label/hideInNav）
+ * @param {string} dirPath - 分类目录的路径
+ * @param {string} defaultName - 默认的分类名称
+ * @returns {{ position: number, label: string, hideInNav: boolean }} 分类元数据
+ */
 function getCategoryMeta(dirPath, defaultName) {
   const categoryPath = path.join(dirPath, '_category_.json');
   let position = 999;
