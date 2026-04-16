@@ -255,10 +255,10 @@ const config = {
           {
             title: '本站导航',
             items: [
-              {
-                label: '我的博客',
-                to: '/blog',
-              },
+              // {
+              //   label: '我的博客',
+              //   to: '/blog',
+              // },
               {
                 label: '开源项目',
                 to: '/projects', // 👈 指向我们之前建的项目页
