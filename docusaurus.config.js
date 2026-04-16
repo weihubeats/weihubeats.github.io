@@ -241,7 +241,7 @@ const config = {
         items: [
           ...getDynamicNavItems(),
           { to: '/projects', label: '开源项目', position: 'right' },
-          { to: '/blog', label: '博客', position: 'left' },
+          // { to: '/blog', label: '博客', position: 'left' },
           {
             href: 'https://github.com/weihubeats/weihubeats.github.io',
             label: 'GitHub',
