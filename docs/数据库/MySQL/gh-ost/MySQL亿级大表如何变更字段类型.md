@@ -276,3 +276,23 @@ SHOW PROCESSLIST;
 DROP TABLE IF EXISTS _user_order_gho;
 ```
 
+###  出现报错 FATAL Unexpected database port reported: 3306
+
+这个错误是使用了 Docker 端口映射（例如外部 3008 映射内部 3306）、云数据库代理（Proxy） 或 自定义端口，gh-ost 发现它连接的端口与 MySQL 自己汇报的内部端口不一致
+
+参考 - [issues](https://github.com/github/gh-ost/issues/631)
+
+解决方式
+
+1. 在 `gh-ost` 执行命令中手动执行端口
+```
+--assume-master-host="127.0.0.1:3008"
+```
+
+2. 如果是阿里云 RDS
+
+新增命令 
+
+```
+--aliyun-rds
+```
