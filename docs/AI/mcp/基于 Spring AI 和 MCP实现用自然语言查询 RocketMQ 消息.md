@@ -11,7 +11,7 @@ Spring AI 项目的出现，尤其是其对 Tool Calling（工具调用）的强
 
 本文将记录如何从零开始，基于 `Spring AI` 和 `MCP` 协议，实现一个 `rocketmq-mcp` 服务器，将复杂的 RocketMQ 操作封装成简单的自然语言指令。
 
-[rocketmq-mcp](https://github.com/weihubeats/rocketmq-mcp) 源码已开源，欢迎围观：<https://github.com/weihubeats/rocketmq-mcp>
+[rocketmq-mcp](https://github.com/weihubeats/rocketmq-mcp) 源码已开源，欢迎围观：[https://github.com/weihubeats/rocketmq-mcp](https://github.com/weihubeats/rocketmq-mcp)
 
 > 源码写的比较简单，仅提供了一个简单的demo，后续需要持续优化
 
@@ -160,7 +160,7 @@ npx @modelcontextprotocol/inspector node build/index.js
 ![alt text](images/modelcontex-install-star.png)
 
 
-安装完成后我们在浏览器输入<http://127.0.0.1:6274/>
+安装完成后我们在浏览器输入 `http://127.0.0.1:6274/`
 
 然后添加我们的mcp server，进行测试
 
@@ -208,5 +208,5 @@ npx @modelcontextprotocol/inspector node build/index.js
 
 ## 参考
 
-*   <https://github.com/weihubeats/rocketmq-mcp>
-*   <https://docs.spring.io/spring-ai/reference/getting-started.html>
+*   [https://github.com/weihubeats/rocketmq-mcp](https://github.com/weihubeats/rocketmq-mcp)
+*   [https://docs.spring.io/spring-ai/reference/getting-started.html](https://docs.spring.io/spring-ai/reference/getting-started.html)

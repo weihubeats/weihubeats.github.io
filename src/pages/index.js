@@ -74,7 +74,7 @@ function HomepageHeader() {
               </span>
               <h3>微信扫码关注</h3>
               <img
-                src="/img/wechat-qrcode.png"
+                src="/img/wechat-qrcode.jpg"
                 alt="微信公众号二维码"
                 style={{
                   width: '580px',

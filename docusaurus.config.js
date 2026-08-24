@@ -51,6 +51,21 @@ function getDynamicNavItems() {
   // 基础的物理黑名单（纯粹不是文章目录的文件夹依然保留在这里）
   const ignoreFolders = ['images', 'img', 'assets', '.DS_Store'];
 
+  /**
+   * 判断目录下（含子目录）是否存在任何 md/mdx 文件，空目录不生成导航
+   * @param {string} dirPath - 目录路径
+   * @returns {boolean}
+   */
+  function hasContent(dirPath) {
+    return fs.readdirSync(dirPath, { withFileTypes: true }).some(dirent => {
+      if (dirent.isFile() && /\.(md|mdx)$/.test(dirent.name)) return true;
+      if (dirent.isDirectory() && !ignoreFolders.includes(dirent.name)) {
+        return hasContent(path.join(dirPath, dirent.name));
+      }
+      return false;
+    });
+  }
+
   // 1. 获取、过滤并排序【一级目录】
   const topFolders = fs.readdirSync(docsDir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
@@ -60,6 +75,8 @@ function getDynamicNavItems() {
     })
     // 🌟 新增过滤条件：剔除掉要求隐藏的目录
     .filter(item => !item.hideInNav)
+    // 🌟 剔除掉没有任何文章的空目录
+    .filter(item => hasContent(path.join(docsDir, item.folderName)))
     .sort((a, b) => {
       if (a.position !== b.position) return a.position - b.position;
       return a.folderName.localeCompare(b.folderName);
@@ -161,10 +178,8 @@ const config = {
           rehypePlugins: [rehypeKatex],
           sidebarPath: './sidebars.js',
           showLastUpdateTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          // 请修改为你的仓库地址，用于生成"编辑此页"链接
+          editUrl: 'https://github.com/weihubeats/weihubeats.github.io/edit/main/docs/',
         },
         blog: {
           remarkPlugins: [remarkMath],
@@ -174,10 +189,7 @@ const config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: 'https://github.com/weihubeats/weihubeats.github.io/edit/main/blog/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -193,10 +205,11 @@ const config = {
 
   stylesheets: [
     {
-      href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+      // 与 rehype-katex@7 依赖的 katex 0.16.x 版本保持一致
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css',
       type: 'text/css',
       integrity:
-        'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+        'sha384-lxEFIJ6VcuOSmrKr+LPffgAKBF/EGI7d2+nMMUC1U9KI2AznNXYhVtsQvgcBqfwu',
       crossorigin: 'anonymous',
     },
   ],
@@ -289,15 +302,10 @@ const config = {
             ],
           },
         ],
-        // 🌟 版权与备案信息 (支持 HTML 语法)
+        // 🌟 版权信息
         // 使用 new Date().getFullYear() 自动获取当前年份，永远不用手动改时间！
         copyright: `
         <p style="margin-bottom: 0;">Copyright © ${new Date().getFullYear()} WeiHubeats. Built with Docusaurus.</p>
-        <p style="margin: 0; font-size: 0.8rem; color: var(--ifm-footer-link-color);">
-          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style="color: inherit;">
-            📝 蜀ICP备XXXXXXXX号-1
-          </a>
-        </p>
       `,
       },
       prism: {

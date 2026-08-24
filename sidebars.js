@@ -6,9 +6,21 @@ const docsPath = path.resolve(process.cwd(), 'docs');
 
 const ignoreFolders = ['images', 'img', 'assets', '.DS_Store'];
 
+// 判断目录下（含子目录）是否存在任何 md/mdx 文件，空目录不生成侧边栏
+function hasContent(dirPath) {
+  return fs.readdirSync(dirPath, { withFileTypes: true }).some(dirent => {
+    if (dirent.isFile() && /\.(md|mdx)$/.test(dirent.name)) return true;
+    if (dirent.isDirectory() && !ignoreFolders.includes(dirent.name)) {
+      return hasContent(path.join(dirPath, dirent.name));
+    }
+    return false;
+  });
+}
+
 if (fs.existsSync(docsPath)) {
   const topLevelFolders = fs.readdirSync(docsPath, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name));
+    .filter(dirent => dirent.isDirectory() && !ignoreFolders.includes(dirent.name))
+    .filter(dirent => hasContent(path.join(docsPath, dirent.name)));
 
   topLevelFolders.forEach(topFolder => {
     const topName = topFolder.name;
