@@ -37,7 +37,7 @@
         </dependency>
 ```
 
-> 虽然我们的skywalking ui、oap使用的是`9.4.0`版本
+> 虽然我们的skywalking ui、oap使用的是`9.4.0`版本<br/>
 > 但是最新的skywalking-agetn版本只有`8.15.0`
 
 ### 新建order-logback.xml 文件

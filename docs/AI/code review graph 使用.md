@@ -20,6 +20,7 @@
 激活虚拟环境,并安装核心包
 
 ```
+# 创建一个名为 venv_crg 的 Python 虚拟环境
 python -m venv venv_crg
 
 source venv_crg/bin/activate
@@ -56,6 +57,15 @@ code-review-graph build
 
 
 ## 使用
+
+
+在`curosr`中直接可以直接这么使用
+
+`@review-changes  基于 master和当前分支对比，请找出核心架构层面的变更，并帮我输出一份标准 Markdown 格式的 Review 文档`
+
+上线前都可以执行输出一份 ai code review 代码
+
+如果公司基建比较强 可以考虑加到 ci 中自动审查
 
 
 ## 地址

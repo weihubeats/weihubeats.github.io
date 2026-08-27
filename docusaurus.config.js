@@ -311,6 +311,23 @@ const config = {
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
+        additionalLanguages: [
+          'java',
+          'bash',
+          'docker',
+          'diff',
+          'git',
+          'ruby',
+          'php',
+          'csharp',
+          'scala',
+          'elixir',
+          'haskell',
+          'lua',
+          'r',
+          'clojure',
+          'markup-templating',
+        ],
       },
     }),
 };

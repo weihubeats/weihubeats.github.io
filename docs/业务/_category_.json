@@ -1,0 +1,7 @@
+{
+    "label": "业务",
+    "position": 99,
+    "customProps": {
+        "hideInNav": true
+    }
+}
