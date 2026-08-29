@@ -8,10 +8,38 @@
 
 > 用户输入 -> 模型回答
 
+```mermaid
+flowchart LR
+    A[用户输入] --> B[模型回答]
+```
 
 Agent则是
 
 > 目标 -> 思考 -> 行动 -> 观察结果 -> 再思考 -> 再行动 -> 直到完成任务
+
+```mermaid
+flowchart LR
+    A[用户目标] --> B[思考]
+    B --> C[行动 / 调用工具]
+    C --> D[观察结果]
+    D --> E{任务完成?}
+    E -- 否 --> B
+    E -- 是 --> F[最终回答]
+```
+
+两者对比：
+
+```mermaid
+flowchart TB
+    subgraph Chatbot[普通聊天机器人]
+        direction LR
+        C1[用户输入] --> C2[模型回答]
+    end
+    subgraph AgentLoop[Agent]
+        direction LR
+        A1[目标] --> A2[思考] --> A3[行动] --> A4[观察] --> A2
+    end
+```
 
 
 举个例子。
@@ -37,6 +65,15 @@ Agent则是
 一个完整 Agent 通常包括五个部分
 
 Agent = 大模型 + 目标 + 工具 + 记忆 + 执行循环
+
+```mermaid
+flowchart LR
+    LLM[大模型<br/>Agent 的大脑] --> Loop[执行循环<br/>核心发动机]
+    Goal[目标<br/>要完成什么] --> Loop
+    Tools[工具<br/>手和脚] --> Loop
+    Memory[记忆<br/>经验] --> Loop
+    Loop --> Loop
+```
 
 ### 1. 大模型：Agent 的大脑
 
@@ -147,6 +184,8 @@ SQLite
 
 ### 5. 执行循环：Agent 的核心发动机
 
+#### ReAct
+
 最经典的循环是：
 
 
@@ -157,10 +196,82 @@ Observation: 观察工具结果
 ...
 Final Answer: 最终回答
 
+```mermaid
+flowchart TD
+    Start[拿到目标] --> Thought[Thought<br/>思考下一步]
+    Thought --> Action[Action<br/>选择工具]
+    Action --> Input[Action Input<br/>给工具参数]
+    Input --> Obs[Observation<br/>观察工具结果]
+    Obs --> Check{任务完成?}
+    Check -- 否 --> Thought
+    Check -- 是 --> Final[Final Answer<br/>最终回答]
+```
 
 这个模式叫 Reasoning + Acting
 
+最常见的 Agent 范式有三种：
 
-ReAct (Reasoning and Acting)： 一种将“思考”和“行动”紧密结合的范式，让智能体边想边做，动态调整。
-Plan-and-Solve： 一种“三思而后行”的范式，智能体首先生成一个完整的行动计划，然后严格执行。
-Reflection： 一种赋予智能体“反思”能力的范式，通过自我批判和修正来优化结果。
+- **ReAct (Reasoning and Acting)**：一种将“思考”和“行动”紧密结合的范式，让智能体边想边做，动态调整。
+- **Plan-and-Solve**：一种“三思而后行”的范式，智能体首先生成一个完整的行动计划，然后严格执行。
+- **Reflection**：一种赋予智能体“反思”能力的范式，通过自我批判和修正来优化结果。
+
+## Plan-and-Solve：先规划，再执行
+
+ReAct 是“边想边做”，Plan-and-Solve 则是“先想清楚再动手”。
+
+智能体先根据目标生成一份完整的行动计划，把大任务拆成可执行的小步骤，再一步步严格执行，步骤之间互不打断、顺序固定。
+
+```mermaid
+flowchart TD
+    Goal[理解目标] --> Plan[生成完整行动计划<br/>Plan: 列出所有步骤]
+    Plan --> Step1[Step 1<br/>执行第一步]
+    Step1 --> Step2[Step 2<br/>执行第二步]
+    Step2 --> Step3[Step 3<br/>执行第三步]
+    Step3 --> Check{计划完成?}
+    Check -- 否 --> Step1
+    Check -- 是 --> Final[给出最终结果]
+```
+
+举个例子：`帮我调研 3 个 AI Agent 开源框架，并写成 markdown 报告`
+
+Plan-and-Solve 会先输出计划：
+
+```
+1. 搜索哪些框架值得调研
+2. 逐个调研框架的特性、优缺点
+3. 整理成 markdown 报告
+```
+
+然后严格按照计划执行，直到全部完成。
+
+**适用场景**：任务步骤明确、顺序固定、中途不需要根据反馈改方向的场景（如批量处理、流水线任务）。
+
+**与 ReAct 的区别**：ReAct 每走一步都要观察结果再决定下一步；Plan-and-Solve 提前定好所有步骤，中途不调整。
+
+## Reflection：做完再反思，修正再交付
+
+Reflection 是在 Agent 输出最终答案之前，增加一个“自我审查”环节。
+
+智能体生成结果后，先对自己的答案进行审视：有没有遗漏？思路对不对？结果是否满足目标？发现问题就重新生成，反复迭代直到满意。
+
+```mermaid
+flowchart TD
+    Task[接收任务] --> Generate[生成结果<br/>Generate]
+    Generate --> Critique[自我批判<br/>Critique: 找问题]
+    Critique --> Check{结果是否足够好?}
+    Check -- 否 --> Generate
+    Check -- 是 --> Answer[修正后的最终答案]
+```
+
+举个例子：`写一篇 500 字的产品介绍`
+
+Reflection 的流程是：
+
+1. 先写出一版草稿
+2. 自我审查：有没有突出卖点？语句是否通顺？字数是否达标？
+3. 根据问题重写一版
+4. 重复审查与改写，直到满意才交付
+
+**适用场景**：答案质量要求高的任务（如写文章、写代码、做翻译、写方案），本质上是用“多轮生成”换“更高质量”。
+
+**与 ReAct 的区别**：ReAct 反思的是“行动结果”，决定下一步动作；Reflection 反思的是“最终输出”，用来打磨答案本身。
