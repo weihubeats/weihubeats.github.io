@@ -7,8 +7,8 @@
 
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-lxEFIJ6VcuOSmrKr+LPffgAKBF/EGI7d2+nMMUC1U9KI2AznNXYhVtsQvgcBqfwu" crossorigin="anonymous"><link rel="stylesheet" href="/assets/css/styles.03b8c73a.css">
-<script src="/assets/js/runtime~main.95b1f0b1.js" defer="defer"></script>
-<script src="/assets/js/main.e6091fc9.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.c5e632ea.js" defer="defer"></script>
+<script src="/assets/js/main.3a52630b.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -22,10 +22,14 @@
 <blockquote>
 <p>用户输入 -&gt; 模型回答</p>
 </blockquote>
+<!-- -->
 <p>Agent则是</p>
 <blockquote>
 <p>目标 -&gt; 思考 -&gt; 行动 -&gt; 观察结果 -&gt; 再思考 -&gt; 再行动 -&gt; 直到完成任务</p>
 </blockquote>
+<!-- -->
+<p>两者对比：</p>
+<!-- -->
 <p>举个例子。</p>
 <p>你普通问 LLM：</p>
 <p>帮我查一下北京明天天气，并写一封邮件提醒老板。</p>
@@ -41,6 +45,7 @@
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="agent-的基本组成">Agent 的基本组成<a href="#agent-的基本组成" class="hash-link" aria-label="Agent 的基本组成的直接链接" title="Agent 的基本组成的直接链接" translate="no">​</a></h2>
 <p>一个完整 Agent 通常包括五个部分</p>
 <p>Agent = 大模型 + 目标 + 工具 + 记忆 + 执行循环</p>
+<!-- -->
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-大模型agent-的大脑">1. 大模型：Agent 的大脑<a href="#1-大模型agent-的大脑" class="hash-link" aria-label="1. 大模型：Agent 的大脑的直接链接" title="1. 大模型：Agent 的大脑的直接链接" translate="no">​</a></h3>
 <p>LLM 负责：</p>
 <ul>
@@ -136,6 +141,7 @@
 <p>JSON</p>
 <p>SQLite</p>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-执行循环agent-的核心发动机">5. 执行循环：Agent 的核心发动机<a href="#5-执行循环agent-的核心发动机" class="hash-link" aria-label="5. 执行循环：Agent 的核心发动机的直接链接" title="5. 执行循环：Agent 的核心发动机的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="react">ReAct<a href="#react" class="hash-link" aria-label="ReAct的直接链接" title="ReAct的直接链接" translate="no">​</a></h4>
 <p>最经典的循环是：</p>
 <p>Thought: 思考下一步
 Action: 选择工具
@@ -143,10 +149,38 @@ Action Input: 给工具参数
 Observation: 观察工具结果
 ...
 Final Answer: 最终回答</p>
+<!-- -->
 <p>这个模式叫 Reasoning + Acting</p>
-<p>ReAct (Reasoning and Acting)： 一种将“思考”和“行动”紧密结合的范式，让智能体边想边做，动态调整。
-Plan-and-Solve： 一种“三思而后行”的范式，智能体首先生成一个完整的行动计划，然后严格执行。
-Reflection： 一种赋予智能体“反思”能力的范式，通过自我批判和修正来优化结果。</p></div><div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--ifm-toc-border-color);text-align:center;color:var(--ifm-color-emphasis-700)"><p>本文为博主原创文章，未经博主允许不得转载</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/weihubeats/weihubeats.github.io/edit/main/docs/docs/AI/agent/agent 入门.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">最后<!-- -->于 <b><time datetime="2026-08-27T13:22:11.000Z" itemprop="dateModified">2026年8月27日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--next" href="/docs/AI/agent/先写一个最简单的 Agent"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">先写一个最简单的 Agent</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#agent-是什么" class="table-of-contents__link toc-highlight">agent 是什么</a></li><li><a href="#agent-的基本组成" class="table-of-contents__link toc-highlight">Agent 的基本组成</a><ul><li><a href="#1-大模型agent-的大脑" class="table-of-contents__link toc-highlight">1. 大模型：Agent 的大脑</a></li><li><a href="#2-目标agent-要完成什么" class="table-of-contents__link toc-highlight">2. 目标：Agent 要完成什么</a></li><li><a href="#3-工具agent-的手和脚" class="table-of-contents__link toc-highlight">3. 工具：Agent 的手和脚</a></li><li><a href="#4-记忆agent-的经验" class="table-of-contents__link toc-highlight">4. 记忆：Agent 的经验</a><ul><li><a href="#短期记忆" class="table-of-contents__link toc-highlight">短期记忆</a></li><li><a href="#长期记忆" class="table-of-contents__link toc-highlight">长期记忆</a></li></ul></li><li><a href="#5-执行循环agent-的核心发动机" class="table-of-contents__link toc-highlight">5. 执行循环：Agent 的核心发动机</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">本站导航</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/projects">开源项目</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">社交与联系</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/weihubeats" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://juejin.cn/user/395479918848487" target="_blank" rel="noopener noreferrer" class="footer__link-item">掘金主页<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/weihubeats/weihubeats.github.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">本站源码 (GitHub)<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">
+<p>最常见的 Agent 范式有三种：</p>
+<ul>
+<li class=""><strong>ReAct (Reasoning and Acting)</strong>：一种将“思考”和“行动”紧密结合的范式，让智能体边想边做，动态调整。</li>
+<li class=""><strong>Plan-and-Solve</strong>：一种“三思而后行”的范式，智能体首先生成一个完整的行动计划，然后严格执行。</li>
+<li class=""><strong>Reflection</strong>：一种赋予智能体“反思”能力的范式，通过自我批判和修正来优化结果。</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="plan-and-solve先规划再执行">Plan-and-Solve：先规划，再执行<a href="#plan-and-solve先规划再执行" class="hash-link" aria-label="Plan-and-Solve：先规划，再执行的直接链接" title="Plan-and-Solve：先规划，再执行的直接链接" translate="no">​</a></h2>
+<p>ReAct 是“边想边做”，Plan-and-Solve 则是“先想清楚再动手”。</p>
+<p>智能体先根据目标生成一份完整的行动计划，把大任务拆成可执行的小步骤，再一步步严格执行，步骤之间互不打断、顺序固定。</p>
+<!-- -->
+<p>举个例子：<code>帮我调研 3 个 AI Agent 开源框架，并写成 markdown 报告</code></p>
+<p>Plan-and-Solve 会先输出计划：</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">1. 搜索哪些框架值得调研</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">2. 逐个调研框架的特性、优缺点</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">3. 整理成 markdown 报告</span><br></span></code></pre></div></div>
+<p>然后严格按照计划执行，直到全部完成。</p>
+<p><strong>适用场景</strong>：任务步骤明确、顺序固定、中途不需要根据反馈改方向的场景（如批量处理、流水线任务）。</p>
+<p><strong>与 ReAct 的区别</strong>：ReAct 每走一步都要观察结果再决定下一步；Plan-and-Solve 提前定好所有步骤，中途不调整。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="reflection做完再反思修正再交付">Reflection：做完再反思，修正再交付<a href="#reflection做完再反思修正再交付" class="hash-link" aria-label="Reflection：做完再反思，修正再交付的直接链接" title="Reflection：做完再反思，修正再交付的直接链接" translate="no">​</a></h2>
+<p>Reflection 是在 Agent 输出最终答案之前，增加一个“自我审查”环节。</p>
+<p>智能体生成结果后，先对自己的答案进行审视：有没有遗漏？思路对不对？结果是否满足目标？发现问题就重新生成，反复迭代直到满意。</p>
+<!-- -->
+<p>举个例子：<code>写一篇 500 字的产品介绍</code></p>
+<p>Reflection 的流程是：</p>
+<ol>
+<li class="">先写出一版草稿</li>
+<li class="">自我审查：有没有突出卖点？语句是否通顺？字数是否达标？</li>
+<li class="">根据问题重写一版</li>
+<li class="">重复审查与改写，直到满意才交付</li>
+</ol>
+<p><strong>适用场景</strong>：答案质量要求高的任务（如写文章、写代码、做翻译、写方案），本质上是用“多轮生成”换“更高质量”。</p>
+<p><strong>与 ReAct 的区别</strong>：ReAct 反思的是“行动结果”，决定下一步动作；Reflection 反思的是“最终输出”，用来打磨答案本身。</p></div><div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--ifm-toc-border-color);text-align:center;color:var(--ifm-color-emphasis-700)"><p>本文为博主原创文章，未经博主允许不得转载</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/weihubeats/weihubeats.github.io/edit/main/docs/docs/AI/agent/agent 入门.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">最后<!-- -->于 <b><time datetime="2026-08-29T04:01:17.000Z" itemprop="dateModified">2026年8月29日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--next" href="/docs/AI/agent/先写一个最简单的 Agent"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">先写一个最简单的 Agent</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#agent-是什么" class="table-of-contents__link toc-highlight">agent 是什么</a></li><li><a href="#agent-的基本组成" class="table-of-contents__link toc-highlight">Agent 的基本组成</a><ul><li><a href="#1-大模型agent-的大脑" class="table-of-contents__link toc-highlight">1. 大模型：Agent 的大脑</a></li><li><a href="#2-目标agent-要完成什么" class="table-of-contents__link toc-highlight">2. 目标：Agent 要完成什么</a></li><li><a href="#3-工具agent-的手和脚" class="table-of-contents__link toc-highlight">3. 工具：Agent 的手和脚</a></li><li><a href="#4-记忆agent-的经验" class="table-of-contents__link toc-highlight">4. 记忆：Agent 的经验</a><ul><li><a href="#短期记忆" class="table-of-contents__link toc-highlight">短期记忆</a></li><li><a href="#长期记忆" class="table-of-contents__link toc-highlight">长期记忆</a></li></ul></li><li><a href="#5-执行循环agent-的核心发动机" class="table-of-contents__link toc-highlight">5. 执行循环：Agent 的核心发动机</a><ul><li><a href="#react" class="table-of-contents__link toc-highlight">ReAct</a></li></ul></li></ul></li><li><a href="#plan-and-solve先规划再执行" class="table-of-contents__link toc-highlight">Plan-and-Solve：先规划，再执行</a></li><li><a href="#reflection做完再反思修正再交付" class="table-of-contents__link toc-highlight">Reflection：做完再反思，修正再交付</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">本站导航</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/projects">开源项目</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">社交与联系</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/weihubeats" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://juejin.cn/user/395479918848487" target="_blank" rel="noopener noreferrer" class="footer__link-item">掘金主页<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/weihubeats/weihubeats.github.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">本站源码 (GitHub)<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">
         <p style="margin-bottom: 0;">Copyright © 2026 WeiHubeats. Built with Docusaurus.</p>
       </div></div></div></footer></div>
 </body>
